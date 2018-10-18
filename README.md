@@ -1,7 +1,7 @@
 ## Olmaps API
 ### 使用
 - 浏览器直接引入dist目录下index.js
-- 直接import
+- npm 安装
 
 ```
 npm install olmaps --save
