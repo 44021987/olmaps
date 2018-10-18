@@ -1,0 +1,1 @@
+export { ol as Olmaps } from '../src/map'
