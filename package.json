@@ -1,0 +1,35 @@
+{
+  "name": "olmaps",
+  "version": "1.0.3",
+  "description": "Easymaps API, based on openlayers",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cross-env NODE_ENV=production webpack",
+    "dev": "cross-env NODE_ENV=development webpack --watch",
+    "prepare": "npm run build"
+  },
+  "presets": [
+    "es2015"
+  ],
+  "author": "https://github.com/44021987",
+  "license": "ISC",
+  "dependencies": {
+    "ol": "^5.1.3",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/runtime": "^7.0.0",
+    "babel-loader": "^8.0.2",
+    "clean-webpack-plugin": "^0.1.19",
+    "copy-webpack-plugin": "^4.5.3",
+    "cross-env": "^5.2.0",
+    "file-loader": "^2.0.0",
+    "url-loader": "^1.1.2",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.7"
+  }
+}
