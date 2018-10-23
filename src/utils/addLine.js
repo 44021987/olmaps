@@ -1,9 +1,9 @@
 import Feature from 'ol/Feature'
 import LineString from 'ol/geom/LineString'
-import { getLength } from 'ol/sphere'
+// import { getLength } from 'ol/sphere'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from './common'
+import {transformLonLat} from '../common'
 
 /**
  * 

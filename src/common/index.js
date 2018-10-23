@@ -1,6 +1,6 @@
 import {Vector} from 'ol/layer'
 import VectorSource from 'ol/source/Vector'
-import * as featureStyle from './featureStyle'
+import * as featureStyle from '../utils/featureStyle'
 
 import TileLayer from 'ol/layer/Tile'
 import XYZ from 'ol/source/XYZ'
@@ -98,6 +98,22 @@ export const transformCircleRadius = (map, r) => {
   return Math.round((r / METERS_PER_UNIT.m) * resolutionFactor*100)/100
 }
 
-export const transProj = (coordinate, oldproj='EPSG:3857', newproj='EPSG:4326') => {
-  return transform(coordinate, oldproj, newproj)
+export const transProj = (lonLatArr, oldproj='EPSG:3857', newproj='EPSG:4326') => {
+  if (!Array.isArray(lonLatArr)) throw Error('参数格式错误')
+  function trans(lonLatArr, oldproj, newproj) {
+    if (!Array.isArray(lonLatArr[0]) && lonLatArr.length === 2) {
+      return transform([Number(lonLatArr[0]), Number(lonLatArr[1])], oldproj, newproj) 
+    }
+    const result = []
+    lonLatArr.forEach(item => {
+      if (Array.isArray(item) && !Array.isArray(item[0])) {
+        result.push(transform([Number(item[0]), Number(item[1])]), oldproj, newproj)
+      } else {
+        result.push(trans(item))
+      }
+    })
+    return result
+  }
+  return trans(lonLatArr, oldproj, newproj)
 }
+

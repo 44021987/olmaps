@@ -5,7 +5,8 @@ import { getLength } from 'ol/sphere'
 import {ScaleLine} from 'ol/control'
 import {defaults as defaultInteractions} from 'ol/interaction'
 
-import utils from './utils'
+import * as utils from './utils'
+import * as common from './common'
 import {featureDrag} from './event/drag'
 import {calculateGroup} from './component'
 import { mapSrc, pixelNum } from './config'
@@ -26,9 +27,9 @@ export class ol {
         doubleClickZoom: false
       }),
       target: otps.target || 'map',
-      layers: this.addLayer(),
+      layers: this.addMapLayer(),
       view: new View({
-        center: utils.transformLonLat(otps.center || [116.39786526, 39.92421163]),
+        center: common.transformLonLat(otps.center || [116.39786526, 39.92421163]),
         projection: 'EPSG:3857',
         rotation: 0,
         zoom: otps.zoom || 16,
@@ -40,12 +41,12 @@ export class ol {
     this.map.addInteraction(new Drag())
     this.map.addControl(new ScaleLine({units: 'metric'}))
   }
-  addLayer() {
-    const googleMap = utils.getLayer('谷歌地图', mapSrc.google.normal, true)
-    const googleGis = utils.getLayer('谷歌影像地图', mapSrc.google.gis)
-    const gaodeMap = utils.getLayer('高德地图', mapSrc.gaode.normal)
-    const gaodeGis = utils.getLayer('高德影像地图', mapSrc.gaode.gis)
-    const gaodeGisRound = utils.getLayer('高德道路影像地图', mapSrc.gaode.round)
+  addMapLayer() {
+    const googleMap = common.getLayer('谷歌地图', mapSrc.google.normal, true)
+    const googleGis = common.getLayer('谷歌影像地图', mapSrc.google.gis)
+    const gaodeMap = common.getLayer('高德地图', mapSrc.gaode.normal)
+    const gaodeGis = common.getLayer('高德影像地图', mapSrc.gaode.gis)
+    const gaodeGisRound = common.getLayer('高德道路影像地图', mapSrc.gaode.round)
     this.mapLayers = {
       googleMap,
       googleGis,
@@ -60,41 +61,41 @@ export class ol {
     return layers
   }
   addCircle(opts, callback) {
-    const radius = utils.transformCircleRadius(this.map, opts.radius)
+    const radius = common.transformCircleRadius(this.map, opts.radius)
     const circleLayer = utils.addCircle(opts.center, radius)
-    utils.addLayer(this, circleLayer.features)
+    common.addLayer(this, circleLayer.features)
     callback && callback(circleLayer.data)
     return circleLayer.data
   }
   addPolygon(coordinates, callback) {
     const polygonLayer = utils.addPolygon(coordinates)
-    utils.addLayer(this, polygonLayer.features)
+    common.addLayer(this, polygonLayer.features)
     callback && callback(polygonLayer.data)
     return polygonLayer.data
   }
   addMultiPolygon(opts, callback) {
     const polygonLayer = utils.addMultiPolygon(opts)
-    utils.addLayer(this, polygonLayer.features)
+    common.addLayer(this, polygonLayer.features)
     callback && callback(polygonLayer.data)
     return polygonLayer.data
   }
   addMarker(pointArray, callback) {
     const markersLayer = utils.addMarker(pointArray)
     const features = markersLayer.features
-    utils.addLayer(this, features)
+    common.addLayer(this, features)
     callback && callback(markersLayer.data)
     return markersLayer.data
   }
   addLine(pointOpts, callback) {
     const lineLayer = utils.addLine(pointOpts)
     const features = lineLayer.features
-    utils.addLayer(this, features)
+    common.addLayer(this, features)
     callback && callback(lineLayer.data)
     return lineLayer.data
   }
   getCenter(callback) {
     const center = this.map.getView().getCenter()
-    callback && callback(utils.transProj(center))
+    callback && callback(common.transProj(center))
     return center
   }
   getRequestUrl(callback) {
@@ -151,12 +152,12 @@ export class ol {
   }
   setMapCenter(center=[]) {
     this.map.getView().animate({
-      center: utils.transformLonLat(center),
+      center: common.transformLonLat(center),
       duration: 300
     })
   }
   removeFeature(ids) {
-    const result = utils.getAllFeatures(this.map)
+    const result = common.getAllFeatures(this.map)
     const features = result.features
     const featureLayer = result.featureLayer
     let len = 0
@@ -184,7 +185,7 @@ export class ol {
     this.map.on('moveend', function (evt) {
       const center = evt.map.getView().getCenter()
       const data = {
-        center: utils.transProj(center),
+        center: common.transProj(center),
         zoom: that.getZoom()
       }
       callback && callback(data)

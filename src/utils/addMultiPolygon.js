@@ -2,7 +2,7 @@ import Feature from 'ol/Feature'
 import MultiPolygon from 'ol/geom/MultiPolygon'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from './common'
+import {transformLonLat} from '../common'
 import {isObject} from '../public'
 
 export const addMultiPolygon = opts => {

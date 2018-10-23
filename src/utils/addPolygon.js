@@ -1,7 +1,7 @@
 import Feature from 'ol/Feature'
 import {Polygon} from 'ol/geom.js'
 import uuidv4 from 'uuid/v4'
-import {transformLonLat} from './common'
+import {transformLonLat} from '../common'
 
 export const addPolygon = (coordinates) => {
   if (!Array.isArray(coordinates) || !coordinates.length) return

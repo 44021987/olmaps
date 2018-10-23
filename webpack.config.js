@@ -5,14 +5,14 @@ const mode = process.env.NODE_ENV
 
 module.exports = {
   entry: {
-    app: './package/index.js'
+    olmaps: './package/index.js'
   },
   mode,
   output: {
     // library: 'olmap',
     libraryTarget: "umd",
-    filename: 'index.js',
-    chunkFilename: 'index.js',
+    filename: '[name].js',
+    chunkFilename: '[name].js',
     path: path.resolve(__dirname, 'dist')
   },
   plugins: [

@@ -1,7 +1,7 @@
 import LineString from 'ol/geom/LineString'
 import {inherits} from 'ol/util'
 import {Pointer as PointerInteraction} from 'ol/interaction'
-import {transProj, getAllFeatures} from '../utils/common'
+import {transProj, getAllFeatures} from '../common'
 import {endDI, lineDI} from '../config'
 
 function isNeedclickCallback(feature) {

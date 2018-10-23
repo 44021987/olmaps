@@ -1,4 +1,8 @@
 ## Olmaps API
+**基于openlayers5的封装**
+
+默认传入和返回的经纬度都是EPSG:4326坐标体系，如使用其他的坐标系需要经过转换。地图内部使用的EPSG:3857坐标系。
+[TOC]
 ### 使用
 - 浏览器直接引入dist目录下index.js
 - npm 安装
@@ -7,9 +11,9 @@
 npm install olmaps --save
 import Olmaps form 'olmaps'
 
-const map = new Olmaps()
-map.getZoom()
-map.addCircle({
+const olmaps =new Olmaps()
+olmaps.getZoom()
+olmaps.addCircle({
   center: [116.39786526, 39.92421163],
   radius: 100
 })
@@ -20,7 +24,7 @@ map.addCircle({
 - 初始化地图
 - 返回map实例
 ```
-const map = new Olmaps({
+const olmaps =new Olmaps({
   target: 'map'
   center: [116.39786526, 39.92421163],
   zoom: 16 ,
@@ -39,17 +43,17 @@ maxZoom | 最大缩放层级 | 20
 ##### setMapCenter（center）
 - 设置地图中心点
 ```
-map.setMapCenter([116.39786526, 39.92421163])
+olmaps.setMapCenter([116.39786526, 39.92421163])
 ```
 ##### setMapType(number String)
 - 切换地图类型
 ```
-map.setMapType(0)
+olmaps.setMapType(0)
 ```
 
 variable | description
 --- | ---
-type  | 0 行政图 1 卫星图
+type  | 0 谷歌行政图 1 谷歌影像图 2 高德行政图 3 高德影像图
 
 ##### getZoom()
 - 获取当前缩放层级
@@ -88,7 +92,7 @@ gaode | 高德
 ##### addMarker(point array, callback)
 - 绘制点标记
 ```
-const markerInfo = map.addMarker([
+const markerInfo = olmaps.addMarker([
   {
     "latitude":"39.92421163",
     "longitude":"116.39786526",
@@ -126,7 +130,7 @@ olId | 点位标识
 - 画线：实线和虚线用type做区分
 ```
 // 入参
-const info = map.addLine([
+const info = olmaps.addLine([
   {
     "data":[
       ["116.39786526","39.92421163"],
@@ -210,7 +214,7 @@ olId  | String | 点位标识 |
 ##### addCircle(option Json, callback)
 - 绘制圆形(一次只绘制一个)
 ```
-const info = map.addCircle({
+const info = olmaps.addCircle({
   center: [116.39786526, 39.92421163],
   radius: 100
 })
@@ -226,7 +230,7 @@ radius| String | 圆的半径（单位米）
 ##### addPolygon(point Array, callback)
 - 绘制多边形(一次只绘制一个)
 ```
-const info = map.addPolygon([
+const info = olmaps.addPolygon([
   ["116.39786526","39.92421163"],
   ["116.39593675","39.92629634"],
   ["116.39670252","39.92647015"],
@@ -240,7 +244,7 @@ const info = map.addPolygon([
 ##### addMultiPolygon(opts Json, callback)
 
 ```
-const info = map.addMultiPolygon({
+const info = olmaps.addMultiPolygon({
   data: [
     ["116.39786526","39.92421163"],
     ["116.39593675","39.92629634"],
@@ -261,7 +265,7 @@ id | String | 唯一标识
 - 绘制一组实时显示距离的点线集合
 - 返回id集合用于删除该组数据
 ```
-const info = map.calculateGroup({
+const info = olmaps.calculateGroup({
   "data":[
     ["116.39786526","39.92421163"],
     ["116.39593675","39.92629634"]
@@ -285,7 +289,7 @@ const info = map.calculateGroup({
 - 所有增加的覆盖物都可通过此方法单独删除
 - ids为标识集合（只删除一个也传list）
 ```
-map.removeFeature([
+olmaps.removeFeature([
   '81f2e09f-ce04-42ac-92f1-98c3d51cc585'
   '81f2e09f-ce04-42ac-92f1-98c3d51cc586'
 ])
@@ -296,11 +300,11 @@ map.removeFeature([
 
 ### 4.事件监听
 
-##### change(callback)
+##### change
 - 地图移动的监听
 - 返回移动后的地图中心点坐标
 ```js
-map.on('change', function(result) {
+olmaps.on('change', function(result) {
 })
 // result
 {
@@ -309,9 +313,11 @@ map.on('change', function(result) {
 }
 ```
 
-##### markerDrag(callback)
+##### markerDrag
 - 标记拖动回调
-```
+```js
+olmaps.on('markerDrag', function(result) {
+})
 // result
 {
   "oldCoordinates":[116.39786526,39.92421163],
@@ -326,9 +332,11 @@ oldCoordinates| 拖动前坐标
 olId | 被拖动点位标识
 
 
-##### markerClick(callback)
+##### markerClick
 - 标记点击回调
-```
+```js
+olmaps.on('markerClick', function(result) {
+})
 // result
 {
   "coordinates":[116.39786526,39.92421163],
@@ -336,12 +344,48 @@ olId | 被拖动点位标识
 }
 ```
 
-##### markerLongClick(callback)
+##### markerLongClick
 - 标记长按回调
-```
+```js
+olmaps.on('markerLongClick', function(result) {
+})
 // result
 {
   "coordinates":[116.39786526,39.92421163],
   "olId":"68b22fa0-34cd-49bb-8083-a0a36543fa77"
 }
 ```
+##### olmaps.map
+返回map实例，map上的其他操作参考openlayers5的官方API
+
+### 5.工具方法
+
+```js
+// 浏览器直接引入
+olmaps.addLayer()
+olmaps.getAllFeatures()
+olmaps.transformLonLat()
+olmaps.transProj()
+
+// es6
+import {addLayer, getAllFeatures, transformLonLat, transProj} from 'olmaps/tool'
+addLayer()
+getAllFeatures()
+transformLonLat()
+transProj()
+```
+#### addLayer
+addLayer(olmaps, features)
+
+#### getAllFeatures
+- 获取map上所有添加的覆盖物
+getAllFeatures(olmaps.map)
+
+#### transformLonLat
+- 转换经纬度到默认坐标系
+transformLonLat([116.39786526, 39.924211629999974])
+
+#### transProj
+- 坐标系互转
+transProj(lonLatArr, oldproj='EPSG:3857', newproj='EPSG:4326')
+

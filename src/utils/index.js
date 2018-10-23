@@ -1,21 +1,22 @@
 
-import { addMarker } from './addMarker'
-import { addLine } from './addLine'
-import { addCircle } from './addCircle'
-import { addPolygon } from './addPolygon'
-import { addMultiPolygon } from './addMultiPolygon'
-import * as common from './common'
+export { addMarker } from './addMarker'
+export { addLine } from './addLine'
+export { addCircle } from './addCircle'
+export { addPolygon } from './addPolygon'
+export { addMultiPolygon } from './addMultiPolygon'
+// import * as common from '../common'
 
-const utils = {
-  addMarker,
-  addLine,
-  addCircle,
-  addPolygon,
-  addMultiPolygon
-}
+// console.log(common)
+// const utils = {
+//   addMarker,
+//   addLine,
+//   addCircle,
+//   addPolygon,
+//   addMultiPolygon
+// }
 
-for (const key in common) {
-  if (typeof common[key] === 'function') utils[key] = common[key]
-}
+// for (const key in common) {
+//   if (typeof common[key] === 'function') utils[key] = common[key]
+// }
 
-export default utils
+// export default utils

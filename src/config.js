@@ -13,8 +13,7 @@ export const mapSrc = {
     round: `http://mt1.google.cn/vt/lyrs=h@298&hl=zh-CN&gl=cn&scale=${scale}&z={z}&y={y}&x={x}`
   }
 }
-export const gisMap = mapSrc.google.gis
-export const normalMap = mapSrc.gaode.round
+
 export const devicePixelRatio = scale
 export const pixelNum = 50
 

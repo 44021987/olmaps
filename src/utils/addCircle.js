@@ -2,7 +2,7 @@ import Feature from 'ol/Feature'
 import Circle from 'ol/geom/Circle'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from './common'
+import {transformLonLat} from '../common'
 
 /**
  * 

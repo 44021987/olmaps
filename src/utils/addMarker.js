@@ -2,7 +2,7 @@ import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from './common'
+import {transformLonLat} from '../common'
 
 export const addMarker = (pointarr) => {
   const arr = []
