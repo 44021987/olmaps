@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1, user-scalable=no, width=device-width">
+  <title>map</title>
+  <link rel="stylesheet" href="test/src/css/ol.css">
+  <link rel="stylesheet" href="test/css/index.css" type="text/css">
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      /* background-color: #eeeeee; */
+    }
+
+    li {
+      list-style: none;
+    }
+
+    #map {
+      right: 160px;
+      width: auto;
+    }
+
+    .test-wrap {
+      position: absolute;
+      right: 0;
+      width: 160px;
+    }
+
+    .test-wrap>ul>li {
+      text-align: left;
+      padding: 10px 20px;
+      background: #ffffff;
+      color: #999999;
+      border-bottom: 1px solid #eeeeee;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .ol-popup {
+      font-size: 14px;
+      position: absolute;
+      background-color: white;
+      -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #cccccc;
+      bottom: 12px;
+      left: -50px;
+      min-width: 280px;
+      display: none;
+    }
+
+    .ol-overlay-container>.ol-popup {
+      display: block;
+    }
+
+    .ol-popup:after,
+    .ol-popup:before {
+      top: 100%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .ol-popup:after {
+      border-top-color: white;
+      border-width: 10px;
+      left: 48px;
+      margin-left: -10px;
+    }
+
+    .ol-popup:before {
+      border-top-color: #cccccc;
+      border-width: 11px;
+      left: 48px;
+      margin-left: -11px;
+    }
+
+    .ol-popup-closer {
+      text-decoration: none;
+      position: absolute;
+      top: 2px;
+      right: 8px;
+      color: #cccccc;
+    }
+
+    .ol-popup-closer:hover {
+      color: red;
+    }
+
+    .ol-popup-closer:after {
+      content: "✖";
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <div class="test-wrap" id="wrap">
+    <ul>
+      <li data-type="0">谷歌地图</li>
+      <li data-type="1">谷歌影像地图</li>
+      <li data-type="2">高德地图</li>
+      <li data-type="3">高德影像地图</li>
+      <li data-type="4">清空地图</li>
+    </ul>
+  </div>
+  <div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-centent"></div>
+  </div>
+  <script src="test/src/olmaps.js"></script>
+  <script>
+    var throttle = (fn, interval = 300) => {
+      const _self = fn
+      let timer
+      return function (...args) {
+        if (timer) {
+          return false
+        }
+        timer = setTimeout(() => {
+          clearTimeout(timer)
+          timer = null
+          _self.apply(this, args)
+        }, interval)
+      }
+    }
+    var olmaps = new Olmaps({
+      zoom: 15
+    })
+    // 添加点
+    olmaps.addMarker([{
+        "latitude": "39.93029634",
+        "longitude": "116.39595575",
+        "name": "可拖拽",
+        "img": "test/img/icon/2003.png",
+        "textColor": "red",
+        "drag": true
+      },
+      {
+        "latitude": "39.92999634",
+        "longitude": "116.39093675",
+        "olId": "1",
+        "name": "点击显示气泡"
+      },
+      {
+        "latitude": "39.92639634",
+        "longitude": "116.39093675",
+        "name": "可拖拽2",
+        "img": "test/img/icon/2001.png",
+        "textColor": "red",
+        "drag": true
+      },
+      {
+        "latitude": "39.91629634",
+        "longitude": "116.39593775",
+        "olId": "2",
+        "name": "点击显示气泡2"
+      },
+      {
+        "latitude": "39.9262945634",
+        "longitude": "116.39523675",
+        "name": "aaa"
+      }
+    ])
+    // 添加线
+    olmaps.addLine([{
+        "data": [
+          ["116.39786526", "39.92421163"],
+          ["116.39593675", "39.92629634"]
+        ],
+        "color": "green",
+        "textColor": "green",
+        "showDistance": true,
+        "type": "dash"
+      },
+      {
+        "data": [
+          ["116.39593675", "39.92629634"],
+          ["116.39670252", "39.92647015"]
+        ],
+        "color": "red",
+        "textColor": "green",
+        "showDistance": false,
+        "type": "line"
+      },
+      {
+        "data": [
+          ["116.39670252", "39.92647015"],
+          ["116.39473110", "39.92293218"]
+        ],
+        "color": "green",
+        "textColor": "red",
+        "showDistance": true,
+        "type": "line"
+      }
+    ])
+    // 多边形
+    olmaps.addPolygon([
+      ["116.39786446", "39.92421163"],
+      ["116.39676252", "39.92947015"],
+      ["116.39503675", "39.92629634"],
+      ["116.39476110", "39.92293218"]
+    ])
+    // 圆
+    olmaps.addCircle({
+      center: [116.39986526, 39.92421163],
+      radius: 100
+    })
+
+    
+    // 气泡
+    var overlay = olmaps.overlay('popup')
+    olmaps.map.addOverlay(overlay)
+    closeProp(overlay)
+    olmaps.on('markerClick', function (data) {
+      if (data.olId !== '1' && data.olId !== '2') return
+      var coordinate = olmaps.transformLonLat(data.coordinates)
+      document.getElementById('popup-centent').innerHTML = '被点击的标注ID为' + data.olId
+      overlay.setPosition(coordinate)
+    })
+    // map change
+    olmaps.on('change', function (data) {
+      console.log(olmaps.transProj(data.center, 'EPSG:4326', 'EPSG:3857'))
+    })
+    // zoom change
+    olmaps.map.getView().on('change:resolution', throttle(function (data) {
+      console.log(data)
+    }))
+    function closeProp(overlay) {
+      document.getElementById('popup-closer').onclick = function () {
+        overlay.setPosition(undefined);
+        this.blur();
+        return false;
+      }
+    }
+    document.getElementById('wrap').addEventListener('click', function(e) {
+      var id = Number(e.target.getAttribute('data-type'))
+      if (id > 3) {
+        olmaps.clear()
+      } else {
+        olmaps.setMapType(id)
+      }
+    })
+  </script>
+
+</body>
+
+</html>

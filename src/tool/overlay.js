@@ -1,6 +1,6 @@
 import Overlay from 'ol/Overlay'
 
-export const addOverlay = id => {
+export const overlay = id => {
   return new Overlay({
     element: document.getElementById(id),
     autoPan: true,

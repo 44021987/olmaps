@@ -1,1 +1,1 @@
-export {addOverlay} from './src/tool/overlay'
+export {overlay} from './src/tool/overlay'

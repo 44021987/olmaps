@@ -13,10 +13,10 @@ module.exports = {
     libraryTarget: "umd",
     filename: '[name].js',
     chunkFilename: '[name].js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'test/src')
   },
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(['test/src']),
     new CopyWebpackPlugin([
       {
         from: 'node_modules/ol/ol.css',

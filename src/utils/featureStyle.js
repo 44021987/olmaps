@@ -1,6 +1,6 @@
 import {Icon, Style, Stroke, Fill, Text} from 'ol/style'
 import { getLength } from 'ol/sphere'
-import imgSrc from '../../example/img/icon/2004.png'
+import imgSrc from '../../test/img/icon/2004.png'
 const createText = (feature, textShow) => {
   const name = feature.get('name')
   const type = feature.get('type')

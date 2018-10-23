@@ -16,6 +16,7 @@ export const addMarker = (pointarr) => {
       imgType: item.img ,
       id: item.olId,
       drag: item.drag || false,
+      textColor: item.textColor || '',
       geometry: new Point(transformLonLat(lonlat))
     })
     arr.push(point)
