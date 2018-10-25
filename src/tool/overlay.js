@@ -1,9 +1,10 @@
 import Overlay from 'ol/Overlay'
 
-export const overlay = id => {
+export const overlay = options => {
   return new Overlay({
-    element: document.getElementById(id),
+    element: options.el,
     autoPan: true,
+    positioning: options.position || 'center-top',
     autoPanAnimation: {
       duration: 250
     }

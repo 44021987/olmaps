@@ -1,4 +1,4 @@
-import {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+import {Icon, Style, Stroke, Fill, Text, Circle as CircleStyle} from 'ol/style'
 import { getLength } from 'ol/sphere'
 import imgSrc from '../../test/img/icon/2004.png'
 const createText = (feature, textShow) => {
@@ -24,7 +24,7 @@ export const normalFill = feature => {
       width: 1
     }),
     fill: new Fill({
-      color: 'rgba(255,0,0,0.1)'
+      color: feature.get('fill') || 'rgba(255,0,0,0.1)'
     }),
     text: new Text({
       text: feature.get('name') || '',
@@ -98,5 +98,14 @@ export const text = feature => {
       color: 'rgba(255,0,0,0.1)'
     }),
     text: createText(feature, true)
+  })
+}
+
+export const circleAnimate = (radius, stroke={}) => {
+  return new Style({
+    image: new CircleStyle({
+      radius: radius,
+      stroke: new Stroke(stroke)
+    })
   })
 }

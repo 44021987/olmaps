@@ -61,8 +61,8 @@ export class ol {
     return layers
   }
   addCircle(opts, callback) {
-    const radius = common.transformCircleRadius(this.map, opts.radius)
-    const circleLayer = utils.addCircle(opts.center, radius)
+    opts.radius = common.transformCircleRadius(this.map, opts.radius)
+    const circleLayer = utils.addCircle(opts)
     common.addLayer(this, circleLayer.features)
     callback && callback(circleLayer.data)
     return circleLayer.data
@@ -189,6 +189,18 @@ export class ol {
         zoom: that.getZoom()
       }
       callback && callback(data)
+    })
+  }
+  pointermove(callback) {
+    this.map.on('pointermove', function (evt) {
+      if (evt.dragging) {
+        return
+      }
+      const pixel = this.getEventPixel(evt.originalEvent)
+      const feature = this.forEachFeatureAtPixel(pixel, function (feature) {
+        return feature
+      })
+      callback && callback(evt, feature)
     })
   }
   on(type, callback) {

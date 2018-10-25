@@ -41,6 +41,7 @@
       cursor: pointer;
     }
 
+    /* 气泡 */
     .ol-popup {
       font-size: 14px;
       position: absolute;
@@ -100,18 +101,66 @@
     .ol-popup-closer:after {
       content: "✖";
     }
+
+    /* 闪烁 */
+
+    .point-animate {
+      height: 50px;
+      width: 50px;
+      border-radius: 25px;
+      background: rgba(255, 0, 0, 0.9);
+      transform: scale(0);
+      animation: myfirst 2s;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes myfirst {
+      to {
+        transform: scale(2);
+        background: rgba(0, 0, 0, 0);
+      }
+    }
+
+
+    .info {
+      position: absolute;
+      top: 10px;
+      right: 200px;
+      color: red;
+    }
+
+    .center {
+      background: #ffffff;
+      border: 1px solid #cccccc;
+      padding: 6px 20px
+    }
+
+    #mounse-location {
+      position: fixed;
+      bottom: 10px;
+      right: 200px;
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
   <div id="map"></div>
+  <div class="info">
+    <span id="mounse-location" class=""></span>
+    <span id="center" class="center"></span>
+  </div>
   <div class="test-wrap" id="wrap">
     <ul>
       <li data-type="0">谷歌地图</li>
-      <li data-type="1">谷歌影像地图</li>
+      <li data-type="1">谷歌影像</li>
       <li data-type="2">高德地图</li>
-      <li data-type="3">高德影像地图</li>
+      <li data-type="3">高德影像</li>
       <li data-type="4">清空地图</li>
+      <li data-type="5">基本操作</li>
+
+      <li data-type="6">空气质量显示</li>
     </ul>
   </div>
   <div id="popup" class="ol-popup">
@@ -119,138 +168,30 @@
     <div id="popup-centent"></div>
   </div>
   <script src="test/src/olmaps.js"></script>
+  <script src="test/js/data.js"></script>
+  <script src="test/js/test.js"></script>
   <script>
-    var throttle = (fn, interval = 300) => {
-      const _self = fn
-      let timer
-      return function (...args) {
-        if (timer) {
-          return false
-        }
-        timer = setTimeout(() => {
-          clearTimeout(timer)
-          timer = null
-          _self.apply(this, args)
-        }, interval)
-      }
-    }
-    var olmaps = new Olmaps({
-      zoom: 15
-    })
-    // 添加点
-    olmaps.addMarker([{
-        "latitude": "39.93029634",
-        "longitude": "116.39595575",
-        "name": "可拖拽",
-        "img": "test/img/icon/2003.png",
-        "textColor": "red",
-        "drag": true
-      },
-      {
-        "latitude": "39.92999634",
-        "longitude": "116.39093675",
-        "olId": "1",
-        "name": "点击显示气泡"
-      },
-      {
-        "latitude": "39.92639634",
-        "longitude": "116.39093675",
-        "name": "可拖拽2",
-        "img": "test/img/icon/2001.png",
-        "textColor": "red",
-        "drag": true
-      },
-      {
-        "latitude": "39.91629634",
-        "longitude": "116.39593775",
-        "olId": "2",
-        "name": "点击显示气泡2"
-      },
-      {
-        "latitude": "39.9262945634",
-        "longitude": "116.39523675",
-        "name": "aaa"
-      }
-    ])
-    // 添加线
-    olmaps.addLine([{
-        "data": [
-          ["116.39786526", "39.92421163"],
-          ["116.39593675", "39.92629634"]
-        ],
-        "color": "green",
-        "textColor": "green",
-        "showDistance": true,
-        "type": "dash"
-      },
-      {
-        "data": [
-          ["116.39593675", "39.92629634"],
-          ["116.39670252", "39.92647015"]
-        ],
-        "color": "red",
-        "textColor": "green",
-        "showDistance": false,
-        "type": "line"
-      },
-      {
-        "data": [
-          ["116.39670252", "39.92647015"],
-          ["116.39473110", "39.92293218"]
-        ],
-        "color": "green",
-        "textColor": "red",
-        "showDistance": true,
-        "type": "line"
-      }
-    ])
-    // 多边形
-    olmaps.addPolygon([
-      ["116.39786446", "39.92421163"],
-      ["116.39676252", "39.92947015"],
-      ["116.39503675", "39.92629634"],
-      ["116.39476110", "39.92293218"]
-    ])
-    // 圆
-    olmaps.addCircle({
-      center: [116.39986526, 39.92421163],
-      radius: 100
-    })
-
-    
-    // 气泡
-    var overlay = olmaps.overlay('popup')
-    olmaps.map.addOverlay(overlay)
-    closeProp(overlay)
-    olmaps.on('markerClick', function (data) {
-      if (data.olId !== '1' && data.olId !== '2') return
-      var coordinate = olmaps.transformLonLat(data.coordinates)
-      document.getElementById('popup-centent').innerHTML = '被点击的标注ID为' + data.olId
-      overlay.setPosition(coordinate)
-    })
-    // map change
-    olmaps.on('change', function (data) {
-      console.log(olmaps.transProj(data.center, 'EPSG:4326', 'EPSG:3857'))
-    })
-    // zoom change
-    olmaps.map.getView().on('change:resolution', throttle(function (data) {
-      console.log(data)
-    }))
-    function closeProp(overlay) {
-      document.getElementById('popup-closer').onclick = function () {
-        overlay.setPosition(undefined);
-        this.blur();
-        return false;
-      }
-    }
-    document.getElementById('wrap').addEventListener('click', function(e) {
+    _$id('wrap').addEventListener('click', function (e) {
       var id = Number(e.target.getAttribute('data-type'))
-      if (id > 3) {
-        olmaps.clear()
-      } else {
+      if (id <= 3) {
         olmaps.setMapType(id)
+        return
+      }
+      switch (id) {
+        case 4:
+          olmaps.clear()
+          break;
+        case 5:
+          init()
+          break;
+        case 6:
+          pm25()
+          break;
+        default:
+          break;
       }
     })
+    bindEvent()
   </script>
 
 </body>
