@@ -11,9 +11,12 @@ import {featureDrag} from './event/drag'
 import {calculateGroup} from './component'
 import { mapSrc, pixelNum } from './config'
 
-
+const methods = {
+  ...utils,
+  ...common
+}
 const _event = {}
-export class ol {
+export class Ol {
   constructor(otps={}) {
     this.mapLayers = []
     this.map = null
@@ -62,32 +65,32 @@ export class ol {
   }
   addCircle(opts, callback) {
     opts.radius = common.transformCircleRadius(this.map, opts.radius)
-    const circleLayer = utils.addCircle(opts)
+    const circleLayer = utils.circle(opts)
     common.addLayer(this, circleLayer.features)
     callback && callback(circleLayer.data)
     return circleLayer.data
   }
   addPolygon(coordinates, callback) {
-    const polygonLayer = utils.addPolygon(coordinates)
+    const polygonLayer = utils.polygon(coordinates)
     common.addLayer(this, polygonLayer.features)
     callback && callback(polygonLayer.data)
     return polygonLayer.data
   }
   addMultiPolygon(opts, callback) {
-    const polygonLayer = utils.addMultiPolygon(opts)
+    const polygonLayer = utils.multiPolygon(opts)
     common.addLayer(this, polygonLayer.features)
     callback && callback(polygonLayer.data)
     return polygonLayer.data
   }
   addMarker(pointArray, callback) {
-    const markersLayer = utils.addMarker(pointArray)
+    const markersLayer = utils.marker(pointArray)
     const features = markersLayer.features
     common.addLayer(this, features)
     callback && callback(markersLayer.data)
     return markersLayer.data
   }
   addLine(pointOpts, callback) {
-    const lineLayer = utils.addLine(pointOpts)
+    const lineLayer = utils.lineString(pointOpts)
     const features = lineLayer.features
     common.addLayer(this, features)
     callback && callback(lineLayer.data)
@@ -224,4 +227,12 @@ export class ol {
     const dis = getLength(new LineString([point1, point2]))
     return parseInt(Math.round(dis * 100) / 100)
   }
+  getCoordinateLength(coordinate) {
+    const dis = getLength(new LineString(common.transformLonLat(coordinate)))
+    return parseInt(Math.round(dis * 100) / 100)
+  }
+}
+
+for (const key in methods) {
+  Ol.prototype[key] = methods[key]
 }

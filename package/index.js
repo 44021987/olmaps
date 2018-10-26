@@ -1,21 +1,13 @@
-import {easeOut} from 'ol/easing'
-import {unByKey} from 'ol/Observable'
-import { ol } from '../src/map'
-import * as tool from '../tool'
-import * as common from '../src/common'
-import {circleAnimate} from '../src/utils/featureStyle'
 
+import { Ol } from '../src/map'
+import * as tool from '../tool'
 
 const methods = {
-  easeOut,
-  unByKey,
-  ...tool,
-  ...common,
-  circleAnimate
+  ...tool
 }
 
 for (const key in methods) {
-  if (typeof methods[key] === 'function') ol.prototype[key] = methods[key]
+  Ol.prototype[key] = methods[key]
   
 }
-export const Olmaps = ol
+export const Olmaps = Ol

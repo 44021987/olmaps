@@ -1,7 +1,8 @@
-import {Icon, Style, Stroke, Fill, Text, Circle as CircleStyle} from 'ol/style'
-import { getLength } from 'ol/sphere'
 import imgSrc from '../../test/img/icon/2004.png'
-const createText = (feature, textShow) => {
+import { getLength } from 'ol/sphere'
+import {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+export {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+export const createText = (feature, textShow = false) => {
   const name = feature.get('name')
   const type = feature.get('type')
   if (!textShow || name === 'false') return ''
@@ -17,14 +18,16 @@ const createText = (feature, textShow) => {
     })
   })
 }
-export const normalFill = feature => {
+
+export const normalFill = (feature, options = {}) => {
+  const fillColor = options.fill || (feature.get('property') && feature.get('property').fill) || 'rgba(255,0,0,0.1)'
   return new Style({
     stroke: new Stroke({
       color: '#f00',
       width: 1
     }),
     fill: new Fill({
-      color: feature.get('fill') || 'rgba(255,0,0,0.1)'
+      color: fillColor
     }),
     text: new Text({
       text: feature.get('name') || '',
@@ -39,7 +42,7 @@ export const normalFill = feature => {
     })
   })
 }
-export const icon = (feature, map) => {
+export const style_icon = (feature, map) => {
   const pixel = map.getDistanceFromPixel()
   const src = feature.get('imgType') || imgSrc
   let textShow = true
@@ -58,7 +61,7 @@ export const icon = (feature, map) => {
     text: createText(feature, textShow)
   })
 }
-export const lineString = (feature, map) => {
+export const style_lineString = (feature, map) => {
   const pixel = map.getDistanceFromPixel()
   const type = feature.get('lineType')
   const normalStyle = textShow => {
@@ -80,13 +83,6 @@ export const lineString = (feature, map) => {
   if (pixel <= 110) textShow = true
   return new Style(normalStyle(textShow))
 }
-export const circle = (feature) => {
-  return normalFill(feature)
-}
-
-export const polygon = (feature) => {
-  return normalFill(feature)
-}
 
 export const text = feature => {
   return new Style({
@@ -101,11 +97,9 @@ export const text = feature => {
   })
 }
 
-export const circleAnimate = (radius, stroke={}) => {
-  return new Style({
-    image: new CircleStyle({
-      radius: radius,
-      stroke: new Stroke(stroke)
-    })
-  })
+export const getStyle = (methods, feature, context) => {
+  const fn = methods[`style_${feature.get('type')}`]
+  if (fn) return fn(feature, context)
+  return normalFill(feature, context)
 }
+

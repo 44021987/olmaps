@@ -1,22 +1,12 @@
 
-export { addMarker } from './addMarker'
-export { addLine } from './addLine'
-export { addCircle } from './addCircle'
-export { addPolygon } from './addPolygon'
-export { addMultiPolygon } from './addMultiPolygon'
-// import * as common from '../common'
+import * as featureStyle from './featureStyle'
 
-// console.log(common)
-// const utils = {
-//   addMarker,
-//   addLine,
-//   addCircle,
-//   addPolygon,
-//   addMultiPolygon
-// }
+export { marker } from './marker'
+export { lineString } from './lineString'
+export { circle } from './circle'
+export { polygon } from './addPolygon'
+export { multiPolygon } from './multiPolygon'
 
-// for (const key in common) {
-//   if (typeof common[key] === 'function') utils[key] = common[key]
-// }
-
-// export default utils
+export const style = {
+  ...featureStyle
+}

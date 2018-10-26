@@ -12,6 +12,7 @@
     "es2015"
   ],
   "author": "https://github.com/44021987",
+  "homepage": "https://44021987.github.io/olmaps/",
   "repository": "https://github.com/44021987/olmaps",
   "license": "ISC",
   "dependencies": {

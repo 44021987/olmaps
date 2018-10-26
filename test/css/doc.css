@@ -1,0 +1,22 @@
+body {
+  width: 100%;
+  height: 100%;
+  padding-left: 320px !important;
+  box-sizing: border-box;
+}
+
+.markdown-preview {
+  height: 100% !important;
+}
+
+body>ul {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  bottom: 0;
+  overflow: auto;
+  border-right: 1px solid #cccccc;
+  margin: 0;
+  padding: 0;
+}

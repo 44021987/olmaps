@@ -2,7 +2,9 @@ import Feature from 'ol/Feature'
 import Circle from 'ol/geom/Circle'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from '../common'
+import {
+  transformLonLat
+} from '../common'
 
 /**
  * 
@@ -10,7 +12,7 @@ import {transformLonLat} from '../common'
  * @param {Nunber} radius default is 0
  * @return {Object} feature data and feature id
  */
-export const addCircle = (opts) => {
+export const circle = (opts) => {
   if (!opts.radius) return
   const id = opts.id || uuidv4()
   const circle = new Feature({

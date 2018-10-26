@@ -4,7 +4,7 @@ import uuidv4 from 'uuid/v4'
 
 import {transformLonLat} from '../common'
 
-export const addMarker = (pointarr) => {
+export const marker = (pointarr) => {
   const arr = []
   if (!Array.isArray(pointarr) || !pointarr.length) return
   pointarr.forEach(item => {

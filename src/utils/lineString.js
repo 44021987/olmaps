@@ -10,7 +10,7 @@ import {transformLonLat} from '../common'
  * @param {Array} linearr 
  * @returns {Object}
  */
-export const addLine = (linearr) => {
+export const lineString = (linearr) => {
   if (!Array.isArray(linearr) || !linearr.length) return
   const arr = []
   linearr.forEach((item, i) => {

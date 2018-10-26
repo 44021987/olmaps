@@ -31,6 +31,12 @@ function closeProp(overlay) {
     return false;
   }
 }
+function resetMap(zoom, type) {
+  olmaps.clear()
+  olmaps.zoomTo(zoom || 15)
+  olmaps.setMapType(type || 0)
+  olmaps.setMapCenter(["116.39786446", "39.92421163"])
+}
 
 function bindEvent() {
   // 气泡
@@ -60,28 +66,67 @@ function bindEvent() {
     // console.log(data)
   }))
 }
-
-function init() {
-  olmaps.zoomTo(15)
-  olmaps.clear()
-  olmaps.setMapType(0)
-  olmaps.setMapCenter(["116.39786526", "39.92421163"])
-  // 添加点
+// 添加点
+function init5() {
+  resetMap()
   olmaps.addMarker(markers)
-  // 添加线
+}
+// 添加线
+function init6() {
+  resetMap(17)
   olmaps.addLine(lineData)
-  // 多边形
+}
+// 多边形
+function init7() {
+  resetMap()
   olmaps.addPolygon([
     ["116.39786446", "39.92421163"],
     ["116.39676252", "39.92947015"],
     ["116.39503675", "39.92629634"],
     ["116.39476110", "39.92293218"]
   ])
-  // 圆
-  olmaps.addCircle({
-    center: [116.39986526, 39.92421163],
-    radius: 100
+}
+var dis = olmaps.getCoordinateLength([
+  ["116.39786526", "39.92421163"],
+  ["116.39593675", "39.92629634"]
+])
+console.log(dis)
+// 描边
+function init8() {
+  var oldFeature = null
+  resetMap(11)
+  olmaps.setMapCenter(geoPoint.boundary[0])
+  olmaps.addMultiPolygon({
+    data: [geoPoint.boundary],
+    name: geoPoint.name,
+    id: 'multiPolygon'
   })
+  olmaps.pointermove(function (evt, feature) {
+    var style = olmaps.style
+    if (feature) {
+      if (feature == oldFeature && feature.get('id') == 'multiPolygon') {
+        feature.setStyle(style.normalFill(feature, {
+          fill: 'yellow'
+        }))
+      }
+    } else {
+      if (oldFeature) {
+        oldFeature.setStyle(style.getStyle(style, oldFeature, olmaps))
+      }
+    }
+    oldFeature = feature
+  })
+}
+function init9() {
+  resetMap()
+  olmaps.setMapCenter([116.39093675, 39.92999634])
+  olmaps.addMarker([{
+    "latitude": "39.92999634",
+    "longitude": "116.39093675",
+    "olId": "1",
+    "textColor": "red",
+    "name": "点击弹出气泡"
+  }])
 }
 
 // 主要城市空气质量

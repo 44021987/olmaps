@@ -153,14 +153,18 @@
   </div>
   <div class="test-wrap" id="wrap">
     <ul>
+      <li data-type="4">文档</li>
       <li data-type="0">谷歌地图</li>
       <li data-type="1">谷歌影像</li>
       <li data-type="2">高德地图</li>
       <li data-type="3">高德影像</li>
-      <li data-type="4">清空地图</li>
-      <li data-type="5">基本操作</li>
+      <li data-type="5">点</li>
+      <li data-type="6">线</li>
+      <li data-type="7">面</li>
+      <li data-type="8">描边</li>
+      <li data-type="9">气泡</li>
 
-      <li data-type="6">空气质量显示</li>
+      <li data-type="99">空气质量显示</li>
     </ul>
   </div>
   <div id="popup" class="ol-popup">
@@ -179,12 +183,24 @@
       }
       switch (id) {
         case 4:
-          olmaps.clear()
+          window.open('./README.html')
           break;
         case 5:
-          init()
+          init5()
           break;
         case 6:
+          init6()
+          break;
+        case 7:
+          init7()
+          break;
+        case 8:
+          init8()
+          break;
+        case 9:
+          init9()
+          break;
+        case 99:
           pm25()
           break;
         default:

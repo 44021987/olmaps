@@ -20,8 +20,10 @@ export const addLayer = (context, features) => {
         features
       }),
       style: function (feature) {
-        if (featureStyle[feature.get('type')]) return featureStyle[feature.get('type')](feature, context)
-        return featureStyle.normalFill(feature, context)
+        // const key = `style_${feature.get('type')}`
+        // if (featureStyle[key]) return featureStyle[key](feature, context)
+        // return featureStyle.normalFill(feature, context)
+        return featureStyle.getStyle(featureStyle, feature, context)
       }
     })
     context.map.addLayer(layer)
