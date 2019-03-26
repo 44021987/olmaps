@@ -1,7 +1,9 @@
 import imgSrc from '../../test/img/icon/2004.png'
 import { getLength } from 'ol/sphere'
 import {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+
 export {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+
 export const createText = (feature, textShow = false) => {
   const name = feature.get('name')
   const type = feature.get('type')
@@ -62,7 +64,6 @@ export const style_icon = (feature, map) => {
   })
 }
 export const style_lineString = (feature, map) => {
-  const pixel = map.getDistanceFromPixel()
   const type = feature.get('lineType')
   const normalStyle = textShow => {
     const strokeOpts = {
@@ -79,8 +80,11 @@ export const style_lineString = (feature, map) => {
     }
     return opts
   }
-  let textShow = false
-  if (pixel <= 110) textShow = true
+  let textShow = true
+  if (map) {
+    const pixel = map.getDistanceFromPixel()
+    if (pixel > 110) textShow = false
+  }
   return new Style(normalStyle(textShow))
 }
 

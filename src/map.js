@@ -11,11 +11,8 @@ import {featureDrag} from './event/drag'
 import {calculateGroup} from './component'
 import { mapSrc, pixelNum } from './config'
 
-const methods = {
-  ...utils,
-  ...common
-}
 const _event = {}
+
 export class Ol {
   constructor(otps={}) {
     this.mapLayers = []
@@ -43,6 +40,7 @@ export class Ol {
     const Drag = featureDrag(_event).Drag
     this.map.addInteraction(new Drag())
     this.map.addControl(new ScaleLine({units: 'metric'}))
+    
   }
   addMapLayer() {
     const googleMap = common.getLayer('谷歌地图', mapSrc.google.normal, true)
@@ -233,6 +231,7 @@ export class Ol {
   }
 }
 
-for (const key in methods) {
-  Ol.prototype[key] = methods[key]
-}
+Object.assign(Ol.prototype, {
+  ...utils,
+  ...common
+})

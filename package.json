@@ -1,6 +1,6 @@
 {
   "name": "olmaps",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Easymaps API, based on openlayers",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

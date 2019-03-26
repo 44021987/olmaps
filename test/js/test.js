@@ -1,6 +1,7 @@
 var olmaps = new Olmaps({
   zoom: 15
 })
+olmaps.setMapType(1)
 var overlay = olmaps.overlay({
   el: _$id('popup')
 })

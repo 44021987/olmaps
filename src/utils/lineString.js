@@ -6,7 +6,7 @@ import uuidv4 from 'uuid/v4'
 import {transformLonLat} from '../common'
 
 /**
- * 
+ * 绘制直线
  * @param {Array} linearr 
  * @returns {Object}
  */
@@ -17,7 +17,7 @@ export const lineString = (linearr) => {
     const data = item.data
     if (!Array.isArray(data) || !data.length) return
     const geometry = new LineString(transformLonLat(data))
-    let dis = ''
+    // let dis = ''
     // if (item.showDistance !== false) dis = parseInt(getLength(geometry)) + 'm'
     const id = item.olId || uuidv4()
     const line = new Feature({
