@@ -12,53 +12,57 @@ import {calculateGroup} from './component'
 import { mapSrc, pixelNum } from './config'
 
 const _event = {}
-
+// 默认设置
+const defaultsConfig = {
+  target: 'map',
+  center: [116.39786526, 39.92421163],
+  zoom: 16,
+  minZoom: 3,
+  maxZoom: 20,
+  mapSrc
+}
 export class Ol {
-  constructor(otps={}) {
-    this.mapLayers = []
+  constructor(opts={}) {
+    this.mapLayers = {}
     this.map = null
     this.layer = null
-    this.init(otps)
+    this.init(opts)
   }
-  init(otps={}) {
+  /**
+   * 初始化地图
+   * @param {object} opts
+   */
+  init(opts={}) {
+    for (const key in defaultsConfig) {
+      if (opts[key] === undefined) opts[key] = defaultsConfig[key]
+    }
     this.map = new Map({
       interactions: defaultInteractions({
         pinchRotate: false,
         doubleClickZoom: false
       }),
-      target: otps.target || 'map',
-      layers: this.addMapLayer(),
+      target: opts.target,
+      layers: this.addMapLayer(opts.mapSrc),
       view: new View({
-        center: common.transformLonLat(otps.center || [116.39786526, 39.92421163]),
+        center: common.transformLonLat(opts.center),
         projection: 'EPSG:3857',
         rotation: 0,
-        zoom: otps.zoom || 16,
-        minZoom: otps.minZoom || 3,
-        maxZoom: otps.maxZoom || 20
+        zoom: opts.zoom,
+        minZoom: opts.minZoom,
+        maxZoom: opts.maxZoom
       })
     })
     const Drag = featureDrag(_event).Drag
     this.map.addInteraction(new Drag())
     this.map.addControl(new ScaleLine({units: 'metric'}))
-    
   }
-  addMapLayer() {
-    const googleMap = common.getLayer('谷歌地图', mapSrc.google.normal, true)
-    const googleGis = common.getLayer('谷歌影像地图', mapSrc.google.gis)
-    const gaodeMap = common.getLayer('高德地图', mapSrc.gaode.normal)
-    const gaodeGis = common.getLayer('高德影像地图', mapSrc.gaode.gis)
-    const gaodeGisRound = common.getLayer('高德道路影像地图', mapSrc.gaode.round)
-    this.mapLayers = {
-      googleMap,
-      googleGis,
-      gaodeMap,
-      gaodeGis,
-      gaodeGisRound
-    }
+  addMapLayer(mapSrc) {
     const layers = []
-    for (const key in this.mapLayers) {
-      layers.push(this.mapLayers[key])
-    }
+    mapSrc.forEach(item => {
+      const layer = common.getLayer(item.name, item.src, item.visible)
+      this.mapLayers[item.id] = layer
+      layers.push(layer)
+    })
     return layers
   }
   addCircle(opts, callback) {
@@ -141,15 +145,11 @@ export class Ol {
         }
       }
     }
-    if (type === 0) {
-      setVisible(['googleMap'])
-    } else if (type === 1) {
-      setVisible(['googleGis'])
-    } else if (type === 2) {
-      setVisible(['gaodeMap'])
-    } else if (type === 3) {
-      setVisible(['gaodeGis', 'gaodeGisRound'])
+    // 为了兼容老版本的number类型
+    if (Object.prototype.toString.call(type, null).slice(8, -1) !== 'Array') {
+      type = typeof type === 'number' ? [String(type)] : [type]
     }
+    setVisible(type)
   }
   setMapCenter(center=[]) {
     this.map.getView().animate({

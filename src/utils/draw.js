@@ -1,31 +1,27 @@
-import Draw, {createBox} from 'ol/interaction/Draw';
-import {Vector as VectorLayer} from 'ol/layer';
-import {Vector as VectorSource} from 'ol/source';
-const source = new VectorSource({wrapX: false})
+import Draw, { createBox } from 'ol/interaction/Draw';
+import { Vector as VectorLayer } from 'ol/layer';
+import { Vector as VectorSource } from 'ol/source';
+const source = new VectorSource({ wrapX: false })
 const vector = new VectorLayer({
   source: source
 });
-export const draw = (type = 'box') => {
-  const params = {source}
-  if (type)
-  switch (type) {
-    case 'box':
-      Object.assign(params, {
-        type: 'Circle',
-        geometryFunction: createBox()
-      })
-      break;
-    case 'LineString':
-      Object.assign(params, {
-        type
-      })
-    break;
-    default:
-      console.error('参数错误')
-      break;
+/**
+ * 绘制线、面
+ * @param {*} type Box LineString
+ */
+export const draw = (type = 'Box') => {
+  let geometryFunction;
+  if (type === 'Box') {
+    type = 'Circle'
+    geometryFunction = createBox()
   }
+  
   return {
-    feature: new Draw(params),
+    feature: new Draw({
+      source,
+      type,
+      geometryFunction
+    }),
     vector
   }
 }

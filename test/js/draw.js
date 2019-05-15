@@ -1,12 +1,17 @@
 const olmaps = new Olmaps({
-  zoom: 15
+  zoom: 15,
+  mapSrc: [
+    {
+      name: '高德道路地图',
+      src: 'http://mt1.google.cn/vt/lyrs=h@298&hl=zh-CN&gl=cn&scale=1&z={z}&y={y}&x={x}',
+      visible: true,
+      id: '66'
+    }
+  ]
 })
-const draw = olmaps.draw()
 let drawStartPoint = null
 let currentPoint = null
 const toolTip = addTooltip(olmaps.map)
-console.log(olmaps)
-olmaps.setMapType(1)
 olmaps.addLine([{
   data: [
     [116.39875173568724, 39.931541254699965],
@@ -15,8 +20,8 @@ olmaps.addLine([{
   showDistance: true,
   textColor: 'red'
 }])
-// drawBox(olmaps.map, draw)
-drawLineString(olmaps.map)
+drawBox(olmaps.map)
+// drawLineString(olmaps.map)
 
 function drawLineString(map) {
   const draw = olmaps.draw('LineString')
@@ -24,10 +29,11 @@ function drawLineString(map) {
   const drawFeature = draw.feature
   map.addLayer(vector)
   map.addInteraction(drawFeature)
-  drawFeature.on('drawstart', drawstart, this)
+  drawFeature.on('drawstart', drawLinestart, this)
 }
 // 长方形
-function drawBox(map, draw) {
+function drawBox(map) {
+  const draw = olmaps.draw('Box')
   const vector = draw.vector
   const drawFeature = draw.feature
   map.addLayer(vector)
@@ -47,17 +53,18 @@ function drawBox(map, draw) {
   drawFeature.on('drawend', function (evt) {
     const coordinate = evt.feature.getGeometry().getCoordinates()[0]
     const coordinateTrans = olmaps.transProj(coordinate, 'EPSG:3857', 'EPSG:4326');
-    coordinateTrans.forEach(item => {
-      olmaps.addCircle({
-        center: item,
-        radius: 30
-      })
-    })
+    // coordinateTrans.forEach(item => {
+    //   olmaps.addCircle({
+    //     center: item,
+    //     radius: 30
+    //   })
+    // })
+    console.log(coordinateTrans)
     olmaps.map.removeInteraction(draw.feature)
   })
 }
 
-function drawstart(evt) {
+function drawLinestart(evt) {
   const geometry = evt.feature.getGeometry()
   const mode = evt.target.mode_
   const el = document.querySelector('.info')

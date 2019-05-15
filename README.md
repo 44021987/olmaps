@@ -5,11 +5,14 @@
 默认传入和返回的经纬度都是EPSG:4326坐标体系，如使用其他的坐标系需要经过转换。地图内部使用的EPSG:3857坐标系。
 ### 使用
 - 浏览器直接引入dist目录下index.js
-- npm 安装
-
+- npm 安装 
+>npm install olmaps --save
+```html
+<div id="map" style="width: 500px;height: 500px"></div>
 ```
-npm install olmaps --save
-import Olmaps form 'olmaps'
+
+```js
+import Olmaps from 'olmaps'
 
 const olmaps =new Olmaps()
 olmaps.getZoom()
@@ -23,7 +26,7 @@ olmaps.addCircle({
 ##### 初始化
 - 初始化地图
 - 返回map实例
-```
+```js
 const olmaps =new Olmaps({
   target: 'map'
   center: [116.39786526, 39.92421163],
@@ -40,18 +43,36 @@ center | 初始化地图中心点坐标 | 无
 zoom | 地图初始化层级 | 16
 minZoom | 最小缩放层级 | 10
 maxZoom | 最大缩放层级 | 20
+mapSrc | 自定义图层 | []
 ##### 设置地图中心点
 ```
 olmaps.setMapCenter([116.39786526, 39.92421163])
 ```
 ##### 切换地图类型
+* 默认支持以下四种类型地图
 ```
-olmaps.setMapType(0)
+olmaps.setMapType('0')
 ```
 
 variable | description
 --- | ---
-type  | 0 谷歌行政图 1 谷歌影像图 2 高德行政图 3 高德影像图
+type  | '0' 谷歌行政图 '1' 谷歌影像图 '2' 高德行政图 '3' 高德影像图
+
+##### 支持自定义图层
+* 支持添加多个，type为切换地图类型时使用
+```js
+const olmaps = new Olmaps({
+  zoom: 15,
+  mapSrc: [
+    {
+      name: '高德道路地图', // 名称
+      src: 'http://mt1.google.cn/vt/lyrs=h@298&hl=zh-CN&gl=cn&scale=1&z={z}&y={y}&x={x}',// 地址
+      visible: true, // 是否显示
+      id: '66' // 类型id 必须唯一
+    }
+  ]
+})
+```
 
 ##### 获取当前缩放层级
 ```
