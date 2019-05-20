@@ -21,7 +21,7 @@ const defaultsConfig = {
   maxZoom: 20,
   mapSrc
 }
-export class Ol {
+export default class Ol {
   constructor(opts={}) {
     this.mapLayers = {}
     this.map = null
@@ -231,7 +231,5 @@ export class Ol {
   }
 }
 
-Object.assign(Ol.prototype, {
-  ...utils,
-  ...common
-})
+Object.assign(Ol.prototype, utils)
+Object.assign(Ol.prototype, common)

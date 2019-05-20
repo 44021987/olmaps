@@ -1,2 +1,2 @@
-import { Ol as Olmaps } from './src/map'
-export default Olmaps
+import './test/src/css/ol.css'
+export { default as Olmaps } from './map'

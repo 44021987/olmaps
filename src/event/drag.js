@@ -56,7 +56,7 @@ function bindMarkerClickDrag(obj) {
   }
   if (isModified) {
     const data = {
-      ...iconData,
+      iconData,
       oldCoordinates: transProj(obj.oldcoordinate_)
     }
     obj._event.onMarkerDragEnd && obj._event.onMarkerDragEnd(data)

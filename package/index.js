@@ -1,7 +1,6 @@
 
-import { Ol } from '../src/map'
+import Ol  from '../src/map'
 import * as tool from '../tool'
-
 import '../node_modules/ol/ol.css'
 
 const methods = {

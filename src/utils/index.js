@@ -8,6 +8,4 @@ export { polygon } from './addPolygon'
 export { multiPolygon } from './multiPolygon'
 export { draw } from './draw'
 
-export const style = {
-  ...featureStyle
-}
+export const style = featureStyle
