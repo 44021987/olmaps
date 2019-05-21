@@ -1,6 +1,6 @@
 {
   "name": "olmaps",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Easymaps API, based on openlayers",
   "scripts": {
     "compile": "babel src -d lib",
