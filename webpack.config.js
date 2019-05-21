@@ -5,7 +5,8 @@ const mode = process.env.NODE_ENV
 
 module.exports = {
   entry: {
-    olmaps: './package/index.js'
+    olmaps: './package/index.js',
+    map: './src/map.js'
   },
   mode,
   output: {
@@ -13,10 +14,10 @@ module.exports = {
     libraryTarget: "umd",
     filename: '[name].js',
     chunkFilename: '[name].js',
-    path: path.resolve(__dirname, 'test/src')
+    path: path.resolve(__dirname, 'lib/js')
   },
   plugins: [
-    new CleanWebpackPlugin(['test/src']),
+    new CleanWebpackPlugin(['./lib/js']),
     new CopyWebpackPlugin([
       {
         from: 'node_modules/ol/ol.css',
