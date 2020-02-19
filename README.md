@@ -258,6 +258,7 @@ variable | type | description
 --- | --- | ---
 center | Array | 中心点经度纬度
 radius| String | 圆的半径（单位米）
+fill| String | 颜色
 
 ##### 绘制多边形
 - 绘制多边形(一次只绘制一个)
