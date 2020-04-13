@@ -2,9 +2,13 @@ import Feature from 'ol/Feature'
 import MultiPolygon from 'ol/geom/MultiPolygon'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from '../common'
-import {isObject} from '../public'
+import { transformLonLat } from '../common'
+import { isObject } from '../public'
 
+/**
+ * 描边
+ * @param {*} opts 
+ */
 export const multiPolygon = opts => {
   if (!isObject(opts) || !Array.isArray(opts.data) || !opts.data.length) throw new Error('addMultiPolygon 参数错误')
   const id = opts.id || uuidv4()
@@ -12,7 +16,7 @@ export const multiPolygon = opts => {
     type: 'multiPolygon',
     name: opts.name,
     id,
-    property: opts.property || {},
+    property: { ...opts },
     geometry: new MultiPolygon([transformLonLat(opts.data)])
   })
   return {

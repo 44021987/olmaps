@@ -1,9 +1,9 @@
 import Feature from 'ol/Feature'
 import LineString from 'ol/geom/LineString'
-// import { getLength } from 'ol/sphere'
+import { getLength } from 'ol/sphere'
 import uuidv4 from 'uuid/v4'
 
-import {transformLonLat} from '../common'
+import { transformLonLat } from '../common'
 
 /**
  * 绘制直线
@@ -11,29 +11,30 @@ import {transformLonLat} from '../common'
  * @returns {Object}
  */
 export const lineString = (linearr) => {
-  if (!Array.isArray(linearr) || !linearr.length) return
-  const arr = []
-  linearr.forEach((item, i) => {
-    const data = item.data
-    if (!Array.isArray(data) || !data.length) return
+  if (!Array.isArray(linearr) || !linearr.length) throw Error('绘制line：参数格式错误')
+  const ids = []
+  const features = linearr.map((item, i) => {
+    const { name = '', data, color, type = 'line', textColor, showDistance } = item || {}
+    if (!data instanceof Array || !data.length) return
+    const id = item.id || item.olId || uuidv4()
     const geometry = new LineString(transformLonLat(data))
-    // let dis = ''
-    // if (item.showDistance !== false) dis = parseInt(getLength(geometry)) + 'm'
-    const id = item.olId || uuidv4()
-    const line = new Feature({
+    console.log(typeof showDistance)
+    ids.push(id)
+    return new Feature({
       type: 'lineString',
-      name: item.showDistance === true ? (item.name || '') : 'false',
+      name: showDistance === true ? `${parseInt(getLength(geometry))}m` : name,
       id,
-      color: item.color || '',
-      lineType: item.type === 'line' ? 'line' : 'dash',
-      textColor: item.textColor || '',
+      color,
+      property: { ...item },
+      // 不是直线就是虚线
+      lineType: type === 'line' ? 'line' : 'dash',
+      textColor,
       geometry
     })
-    item.olId = id
-    arr.push(line)
+
   })
   return {
-    features: arr,
-    data: linearr
+    features,
+    data: ids
   }
 }

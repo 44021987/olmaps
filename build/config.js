@@ -1,30 +1,31 @@
-const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const mode = process.env.NODE_ENV
-
+const idDev = mode === 'development'
 module.exports = {
-  entry: {
-    olmaps: './package/index.js',
-    map: './src/map.js'
-  },
   mode,
-  output: {
-    // library: 'olmap',
-    libraryTarget: "umd",
-    filename: '[name].js',
-    chunkFilename: '[name].js',
-    path: path.resolve(__dirname, 'lib/js')
+  optimization: {
+    minimizer: idDev ? [] : [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          //删除注释
+          output: {
+            comments: false
+          },
+          // 移除 console
+          // 其它优化选项 https://segmentfault.com/a/1190000010874406
+          warnings: false,
+          toplevel: true,
+          compress: {
+            drop_console: true,
+            drop_debugger: true,
+            pure_funcs: ['console.log']
+          }
+        },
+        sourceMap: false,
+        parallel: true
+      })
+    ]
   },
-  plugins: [
-    new CleanWebpackPlugin(['./lib/js']),
-    new CopyWebpackPlugin([
-      {
-        from: 'node_modules/ol/ol.css',
-        to: 'css'
-      }
-    ])
-  ],
   module: {
     rules: [
       {

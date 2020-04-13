@@ -1,16 +1,22 @@
-var olmaps = new Olmaps({
+const olmaps = new Olmaps({
   zoom: 15
 })
-olmaps.setMapType(1)
-var overlay = olmaps.overlay({
+const dis = olmaps.getCoordinateLength([
+  ["116.39786526", "39.92421163"],
+  ["116.39593675", "39.92629634"]
+])
+console.log(`距离：${dis}m`)
+
+const overlay = olmaps.overlay({
   el: _$id('popup')
 })
 
-function _$id(id) {
+function _$id (id) {
   return document.getElementById(id)
 }
 
-function throttle(fn, interval = 300) {
+// 防抖
+function throttle (fn, interval = 300) {
   const _self = fn
   let timer
   return function (...args) {
@@ -24,77 +30,93 @@ function throttle(fn, interval = 300) {
     }, interval)
   }
 }
-
-function closeProp(overlay) {
+// 关闭弹出层
+function closeProp (overlay) {
   _$id('popup-closer').onclick = function () {
     overlay.setPosition(undefined);
     this.blur();
     return false;
   }
 }
-function resetMap(zoom, type) {
+
+// 重置map
+function resetMap (zoom, type) {
   olmaps.clear()
   olmaps.zoomTo(zoom || 15)
   olmaps.setMapType(type || 0)
   olmaps.setMapCenter(["116.39786446", "39.92421163"])
 }
 
-function bindEvent() {
+
+// 绑定事件
+function bindEvent () {
   // 气泡
   olmaps.map.addOverlay(overlay)
   closeProp(overlay)
   olmaps.on('markerClick', function (data) {
     if (data.olId !== '1' && data.olId !== '2') return
-    var coordinate = olmaps.transformLonLat(data.coordinates)
+    const coordinate = olmaps.transformLonLat(data.coordinates)
     _$id('popup-centent').innerHTML = 'ID：' + data.olId + ' 坐标：' + data.coordinates
     overlay.setPosition(coordinate)
   })
   // map change
   olmaps.on('change', function (data) {
     _$id('center').innerHTML = '地图中心点坐标：' + data.center.join(',')
+    console.log(olmaps.mapExtent(), 999)
     // console.log(olmaps.transProj(data.center, 'EPSG:4326', 'EPSG:3857'))
   })
   olmaps.map.on('pointermove', function (evt) {
-    var coordinate = olmaps.transProj(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+    const coordinate = olmaps.transProj(evt.coordinate);
     _$id('mounse-location').innerHTML = coordinate.join(',')
   })
   olmaps.map.on('click', function (evt) {
-    var coordinate = olmaps.transProj(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
-    console.log(coordinate)
+    const coordinate = olmaps.transProj(evt.coordinate);
+    console.log(`鼠标点击坐标：${coordinate}`)
   })
   // zoom change
   olmaps.map.getView().on('change:resolution', throttle(function (data) {
     // console.log(data)
   }))
+
 }
 // 添加点
-function init5() {
+function init5 () {
   resetMap()
-  olmaps.addMarker(markers)
+  olmaps.addMarker(markers, data => {
+    console.log(data)
+  })
 }
 // 添加线
-function init6() {
+function init6 () {
   resetMap(17)
   olmaps.addLine(lineData)
 }
 // 多边形
-function init7() {
+function init7 () {
   resetMap()
-  olmaps.addPolygon([
+  const id = olmaps.addPolygon({
+    data: [
+      ["116.39786446", "39.92421163"],
+      ["116.39676252", "39.92947015"],
+      ["116.39503675", "39.92629634"],
+      ["116.39476110", "39.92293218"]
+    ],
+    name: '多边形测试',
+    id: '887777',
+    fill: 'yellow'
+  })
+  const id2 = olmaps.addPolygon([
     ["116.39786446", "39.92421163"],
-    ["116.39676252", "39.92947015"],
-    ["116.39503675", "39.92629634"],
+    ["116.38676252", "39.92947015"],
+    ["116.39503675", "39.92429634"],
     ["116.39476110", "39.92293218"]
   ])
+  console.log(id, id2)
 }
-var dis = olmaps.getCoordinateLength([
-  ["116.39786526", "39.92421163"],
-  ["116.39593675", "39.92629634"]
-])
-console.log(dis)
+
 // 描边
-function init8() {
-  var oldFeature = null
+function init8 () {
+  let oldFeature = null
   resetMap(11)
   olmaps.setMapCenter(geoPoint.boundary[0])
   olmaps.addMultiPolygon({
@@ -102,23 +124,33 @@ function init8() {
     name: geoPoint.name,
     id: 'multiPolygon'
   })
+  olmaps.layer.on('postrender', function (e) {
+    console.log(55555, e)
+  })
   olmaps.pointermove(function (evt, feature) {
-    var style = olmaps.style
     if (feature) {
-      if (feature == oldFeature && feature.get('id') == 'multiPolygon') {
-        feature.setStyle(style.normalFill(feature, {
+      if (feature.get('id') == 'multiPolygon') {
+        const property = feature.get('property') || {}
+        feature.set('property', {
+          ...property,
           fill: 'yellow'
-        }))
+        })
+        oldFeature = feature
       }
     } else {
       if (oldFeature) {
-        oldFeature.setStyle(style.getStyle(style, oldFeature, olmaps))
+        const property = oldFeature.get('property') || {}
+        oldFeature.set('property', {
+          ...property,
+          fill: null
+        })
+        oldFeature = null
       }
     }
-    oldFeature = feature
   })
 }
-function init9() {
+// 气泡添加
+function init9 () {
   resetMap()
   olmaps.setMapCenter([116.39093675, 39.92999634])
   olmaps.addMarker([{
@@ -131,27 +163,30 @@ function init9() {
 }
 
 // 主要城市空气质量
-function pm25() {
-  var currentfeature = null
-  var animate = createAnimate()
-  var infoDom = createInfoBox()
-  var overlay = olmaps.overlay({
+function pm25 () {
+  let currentfeature = null
+  const animate = createAnimate()
+  const infoDom = createInfoBox()
+  const overlay = olmaps.overlay({
     el: animate,
     position: 'center-center'
   })
-  var overlay2 = olmaps.overlay({
+  const overlay2 = olmaps.overlay({
     el: infoDom,
     position: 'center-bottom'
   })
-  function createAnimate() {
-    var dom = document.createElement('div')
+
+  // 闪烁的气泡
+  function createAnimate () {
+    const dom = document.createElement('div')
     dom.id = 'point-animate'
     dom.className = 'point-animate'
     document.body.appendChild(dom)
     return dom
   }
-  function createInfoBox() {
-    var box = document.createElement('div')
+  // 气泡的dom
+  function createInfoBox () {
+    const box = document.createElement('div')
     box.style.backgroundColor = 'rgba(0, 0, 0, .5)'
     box.style.padding = '10px'
     box.style.color = '#ffffff'
@@ -159,13 +194,15 @@ function pm25() {
     box.style.transition = 'all .38s'
     return box
   }
+
   olmaps.clear()
   olmaps.map.getOverlays().clear()
   olmaps.zoomTo(5)
   olmaps.setMapType(3)
   olmaps.setMapCenter([104.87, 34.21])
-  data.forEach(function (item) {
-    var ids = olmaps.addCircle({
+  data.forEach(function (item, i) {
+    const ids = olmaps.addCircle({
+      // name: i + '_',
       center: item.center,
       radius: item.value * 120,
       overlay: true,
@@ -177,24 +214,25 @@ function pm25() {
   olmaps.map.addOverlay(overlay)
   olmaps.map.addOverlay(overlay2)
   olmaps.pointermove(function (evt, feature) {
-    var property = feature  && feature.get('property') || {}
-    var id = null
-    var result = null
-    var str = ''
-    if (feature &&  property.overlay) {
+    if (!feature) return
+    const property = feature.get('property') || {}
+    let id = null
+    let result = null
+    let str = ''
+    if (property.overlay) {
       if (feature !== currentfeature) {
         currentfeature = feature
         overlay.setPosition(feature.getGeometry().getCenter())
         id = feature.get('id')
-        for (var i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
           if (data[i].olId === id) {
             result = data[i]
             break
           }
         }
         if (!result) return
-        str += '<div>'+result.name+'</div>'
-        str += '<div>'+result.value+'</div>'
+        str += '<div>' + result.name + '</div>'
+        str += '<div>' + result.value + '</div>'
         infoDom.innerHTML = str
         overlay2.setPosition(feature.getGeometry().getCenter())
       }

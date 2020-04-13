@@ -1,55 +1,58 @@
 import imgSrc from '../../test/img/icon/2004.png'
 import { getLength } from 'ol/sphere'
-import {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+import { Icon, Style, Stroke, Fill, Text } from 'ol/style'
 
-export {Icon, Style, Stroke, Fill, Text} from 'ol/style'
+export { Icon, Style, Stroke, Fill, Text } from 'ol/style'
 
+/**
+ * 添加文字
+ * @param {*} feature 
+ * @param {*} textShow 
+ */
 export const createText = (feature, textShow = false) => {
+  const opts = feature.get('property') || {}
   const name = feature.get('name')
-  const type = feature.get('type')
-  if (!textShow || name === 'false') return ''
-  const geometry = feature.getGeometry()
-  const dis = type === 'lineString' ? (parseInt(getLength(geometry)) + 'm') : '' 
+  const { text = {} } = opts
+  if (!textShow || !name) return ''
   return new Text({
     textAlign: 'center',
     textBaseline: 'top',
     font: 'bold 12px 微软雅黑',
-    text: name || dis,
+    text: name,
     fill: new Fill({
       color: feature.get('textColor') || 'green'
-    })
+    }),
+    ...text
   })
 }
-
-export const normalFill = (feature, options = {}) => {
-  const fillColor = options.fill || (feature.get('property') && feature.get('property').fill) || 'rgba(255,0,0,0.1)'
+// 文本
+export const text = feature => {
   return new Style({
     stroke: new Stroke({
       color: '#f00',
       width: 1
     }),
     fill: new Fill({
-      color: fillColor
+      color: 'rgba(255,0,0,0.1)'
     }),
-    text: new Text({
-      text: feature.get('name') || '',
-      font: '18px Calibri,sans-serif',
-      fill: new Fill({
-        color: 'red'
-      }),
-      stroke: new Stroke({
-        color: 'yellow',
-        width: 1
-      })
-    })
+    text: createText(feature, true)
   })
 }
+
+
+/**
+ * icon类型
+ * @param {*} feature 
+ * @param {*} map 
+ */
 export const style_icon = (feature, map) => {
   const pixel = map.getDistanceFromPixel()
   const src = feature.get('imgType') || imgSrc
+  // icon的其他配置
+  const { icon = {} } = feature.get('property') || {}
   let textShow = true
   let scale = 0.7
-  let anchor =[0.5, 28]
+  let anchor = [0.5, 28]
   // if (pixel > 3000) textShow = false
   if (pixel > 500) scale = 0.5
   return new Style({
@@ -58,11 +61,18 @@ export const style_icon = (feature, map) => {
       anchorXUnits: 'fraction',
       anchorYUnits: 'pixels',
       scale,
-      src
+      src,
+      ...icon
     }),
     text: createText(feature, textShow)
   })
 }
+
+/**
+ * 线段
+ * @param {*} feature 
+ * @param {*} map 
+ */
 export const style_lineString = (feature, map) => {
   const type = feature.get('lineType')
   const normalStyle = textShow => {
@@ -88,19 +98,35 @@ export const style_lineString = (feature, map) => {
   return new Style(normalStyle(textShow))
 }
 
-export const text = feature => {
+
+
+/**
+ * 通用样式
+ * @param {*} feature 
+ * @param {*} options 
+ */
+export const normalFill = (feature) => {
+  // 获取属性
+  const { fill, strokeColor, strokeWidth } = feature.get('property') || {}
+  const fillColor = fill || 'rgba(255,0,0,0.2)'
   return new Style({
     stroke: new Stroke({
-      color: '#f00',
-      width: 1
+      color: strokeColor || fillColor,
+      width: strokeWidth || 1
     }),
     fill: new Fill({
-      color: 'rgba(255,0,0,0.1)'
+      color: fillColor
     }),
     text: createText(feature, true)
   })
 }
 
+/**
+ * 获取对应的stule
+ * @param {*} methods 
+ * @param {*} feature 
+ * @param {*} context 
+ */
 export const getStyle = (methods, feature, context) => {
   const fn = methods[`style_${feature.get('type')}`]
   if (fn) return fn(feature, context)

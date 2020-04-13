@@ -1,15 +1,22 @@
 import LineString from 'ol/geom/LineString'
-import {inherits} from 'ol/util'
-import {Pointer as PointerInteraction} from 'ol/interaction'
-import {transProj, getAllFeatures} from '../common'
-import {endDI, lineDI} from '../config'
+import { inherits } from 'ol/util'
+// import { defaults as defaultInteractions, Pointer as PointerInteraction } from 'ol/interaction'
+import { Pointer as PointerInteraction } from 'ol/interaction'
+import { transProj, getAllFeatures } from '../common'
+import { endDI, lineDI } from '../config'
 
-function isNeedclickCallback(feature) {
+/**
+ * 是否需要点击时间回调，id不为endDI的触发回调
+ * @param {*} feature 
+ */
+function isNeedclickCallback (feature) {
   const id = feature.get('id')
   if (new RegExp(endDI).test(id)) return false
   return true
 }
-function cakculateDI(feature, coordinate, map) {
+
+// 计算拖拽距离
+function cakculateDI (feature, coordinate, map) {
   if (isNeedclickCallback(feature)) return
   const id = feature.get('id')
   const lineid = id.split(endDI).shift() + lineDI
@@ -27,43 +34,56 @@ function cakculateDI(feature, coordinate, map) {
     }
   }
 }
-function markerLongClick(feature, coordinates, obj) {
+/**
+ * 判断点击对象是否为icon类型
+ * @param {*} feature 当前对象
+ * @param {*} coordinates 经纬度 
+ * @param {*} context
+ */
+function isIconType (feature, coordinates, context) {
   const olId = feature.get('id')
   const isDrag = feature.get('drag')
   const isIcon = feature.get('type') === 'icon'
-
-  if (!isDrag && isIcon) {
-    obj.longClickEvt = setTimeout(() => {
-      obj._event.onMarkerLongClick && obj._event.onMarkerLongClick({
+  // 如果s是icon类型并且不能被拖拽，则绑定长按事件
+  if (isIcon && !isDrag) {
+    context.longClickEvt = setTimeout(() => {
+      context._event.onMarkerLongClick && context._event.onMarkerLongClick({
         coordinates: transProj(coordinates),
         olId
       })
-      obj.longClickEvt = null
-    }, obj.longClickTime)
+      context.longClickEvt = null
+    }, context.longClickTime)
   }
   return isIcon
 }
-function bindMarkerClickDrag(obj) {
-  const type = obj.feature_.get('type')
-  const olId = obj.feature_.get('id')
-  if (obj.longClickEvt) clearTimeout(obj.longClickEvt)
+
+/**
+ * 绑定拖拽
+ */
+function bindMarkerClickDrag () {
+  const type = this.feature_.get('type')
+  const olId = this.feature_.get('id')
+  if (this.longClickEvt) clearTimeout(this.longClickEvt)
   if (type !== 'icon') return
-  const point = obj.feature_.getGeometry().getCoordinates()
-  const isModified = !(obj.oldcoordinate_.toString() === point.toString())
+  // 对象经纬度
+  const point = this.feature_.getGeometry().getCoordinates()
+  // 判断经纬度是否改变
+  const isModified = !(this.oldcoordinate_.toString() === point.toString())
   const iconData = {
     coordinates: transProj(point),
     olId
   }
+  // 如果被改变了触发拖拽事件
   if (isModified) {
     const data = {
       iconData,
-      oldCoordinates: transProj(obj.oldcoordinate_)
+      oldCoordinates: transProj(this.oldcoordinate_)
     }
-    obj._event.onMarkerDragEnd && obj._event.onMarkerDragEnd(data)
+    this._event.onMarkerDragEnd && this._event.onMarkerDragEnd(data)
   } else {
-    if (Date.now()-obj.time < obj.longClickTime) {
-      if (isNeedclickCallback(obj.feature_)) {
-        obj._event.onMarkerClick && obj._event.onMarkerClick(iconData)
+    if (Date.now() - this.time < this.longClickTime) {
+      if (isNeedclickCallback(this.feature_)) {
+        this._event.onMarkerClick && this._event.onMarkerClick(iconData)
       }
     }
   }
@@ -78,20 +98,36 @@ export const featureDrag = _event => {
       handleMoveEvent: app.Drag.prototype.handleMoveEvent,
       handleUpEvent: app.Drag.prototype.handleUpEvent
     })
-    this.coordinate_ = null
-    this.oldcoordinate_ = null
-    this.cursor_ = 'pointer'
+    // 当前被操作的对象
     this.feature_ = null
+    // 拖拽后的经纬度
+    this.coordinate_ = null
+    // 拖拽之前的经纬度
+    this.oldcoordinate_ = null
+    // 鼠标显示cursor Style
+    this.cursor_ = 'pointer'
+
     this.previousCursor_ = undefined
+    // 当前鼠标按下的时间戳
     this.time = 0
+    // 拖拽的响应时长
     this.dragTime = 800
+    // 长按响应时间
     this.longClickTime = 1500
+    // 长按的回调函数
     this.longClickEvt = null
+    // 绑定的事件
     this._event = _event
   }
 
-  inherits(app.Drag, PointerInteraction)
+  // inherits(app.Drag, PointerInteraction)
+
+  if (PointerInteraction) app.Drag.__proto__ = PointerInteraction
+  app.Drag.prototype = Object.create(PointerInteraction && PointerInteraction.prototype)
+  app.Drag.prototype.constructor = app.Drag
+
   /**
+   * 返回false阻止拖拽，true标识可拖拽
    * @param {evt} event
    * @return {boolean} `false` to stop the drag feature
    * get features, only if the features's type is icon can it be draged
@@ -99,46 +135,52 @@ export const featureDrag = _event => {
    */
   app.Drag.prototype.handleDownEvent = function (evt) {
     const map = evt.map
+    // 获取当前操作的对象
     const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
       return feature
     })
     let isIcon = false
+    // 记录时间戳
     this.time = Date.now()
     if (feature) {
       const coordinates = feature.getGeometry().getCoordinates()
       this.coordinate_ = evt.coordinate
       this.feature_ = feature
       this.oldcoordinate_ = coordinates
-      isIcon = markerLongClick(feature, coordinates, this)
+      isIcon = isIconType(feature, coordinates, this)
     }
     return isIcon
   }
-  
-   /**
+
+  /**
+   * 拖拽发生
    * only if the features's propety of drag is true can it be draged
    * clear long click event
    * drag event will be triggered when the handleDown time more than dragTime
    */
   app.Drag.prototype.handleDragEvent = function (evt) {
     if (this.longClickEvt) clearTimeout(this.longClickEvt)
-    if (Date.now()-this.time < this.dragTime) return
+    // 不是拖拽类型不触发
     if (!this.feature_.get('drag')) return
+    // 没有达到拖拽时间不触发
+    if (Date.now() - this.time < this.dragTime) return
     const deltaX = evt.coordinate[0] - this.coordinate_[0]
     const deltaY = evt.coordinate[1] - this.coordinate_[1]
     const geometry = this.feature_.getGeometry()
     this.coordinate_[0] = evt.coordinate[0]
     this.coordinate_[1] = evt.coordinate[1]
+    // 移动
     geometry.translate(deltaX, deltaY)
     cakculateDI(this.feature_, evt.coordinate, evt.map)
   }
-  
+
+  /**
+   * 添加鼠标状态
+   */
   app.Drag.prototype.handleMoveEvent = function (evt) {
     if (this.cursor_) {
       const map = evt.map;
-      const feature = map.forEachFeatureAtPixel(evt.pixel,
-        function (feature) {
-          return feature
-        })
+      const feature = map.forEachFeatureAtPixel(evt.pixel, feature => feature)
       const element = map.getTargetElement()
       if (feature) {
         if (element.style.cursor != this.cursor_) {
@@ -151,7 +193,7 @@ export const featureDrag = _event => {
       }
     }
   }
-  
+
   /**
    * @return {boolean} `false` to stop the drag sequence
    * if feature's coordinates has been modified, Android's methods named onMarkerDragEnd will be triggered
@@ -159,7 +201,7 @@ export const featureDrag = _event => {
    * init data
    */
   app.Drag.prototype.handleUpEvent = function (evt) {
-    bindMarkerClickDrag(this)
+    bindMarkerClickDrag.call(this)
     this.coordinate_ = null
     this.feature_ = null
     this.time = 0
