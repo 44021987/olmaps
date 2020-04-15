@@ -14,17 +14,49 @@ body {
   padding: 0;
   margin: 0;
 }
-
-#map {
+.full-page {
   position: absolute;
-  left: 0;
   top: 0;
+  right: 0;
   bottom: 0;
-  width: 100%;
-  background: #ebe8de;
+  left: 0;
+}
+.bor-l {
+  border-left: 1px solid #eeeeee;
+}
+.nav-item {
+  padding: 10px 20px;
+  background: #ffffff;
+  color: #999999;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 14px;
+  cursor: pointer;
+}
+.nav-item.active {
+  background: red;
+  color: #ffffff;
 }
 
-.pixel {
+/* 闪烁 */
+
+.point-animate {
+  height: 50px;
+  width: 50px;
+  border-radius: 25px;
+  background: rgba(255, 0, 0, 0.9);
+  transform: scale(0);
+  animation: myfirst 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes myfirst {
+  to {
+    transform: scale(2);
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+/* .pixel {
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -71,4 +103,4 @@ body {
 .ol-viewport {
   overflow:visible!important;
   transform: translateZ(0);
-}
+} */

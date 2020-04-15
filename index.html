@@ -1,214 +1,234 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="initial-scale=1, user-scalable=no, width=device-width">
-  <title>map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>olmaps</title>
   <link rel="stylesheet" href="test/css/index.css" type="text/css">
-  <style>
-    * {
-      padding: 0;
-      margin: 0;
-    }
-
-    body {
-      /* background-color: #eeeeee; */
-    }
-
-    li {
-      list-style: none;
-    }
-
-    #map {
-      right: 160px;
-      width: auto;
-    }
-
-    .test-wrap {
-      position: absolute;
-      right: 0;
-      width: 160px;
-    }
-
-    .test-wrap>ul>li {
-      text-align: left;
-      padding: 10px 20px;
-      background: #ffffff;
-      color: #999999;
-      border-bottom: 1px solid #eeeeee;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* 气泡 */
-    .ol-popup {
-      font-size: 14px;
-      position: absolute;
-      background-color: white;
-      -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #cccccc;
-      bottom: 12px;
-      left: -50px;
-      min-width: 280px;
-      display: none;
-    }
-
-    .ol-overlay-container>.ol-popup {
-      display: block;
-    }
-
-    .ol-popup:after,
-    .ol-popup:before {
-      top: 100%;
-      border: solid transparent;
-      content: " ";
-      height: 0;
-      width: 0;
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .ol-popup:after {
-      border-top-color: white;
-      border-width: 10px;
-      left: 48px;
-      margin-left: -10px;
-    }
-
-    .ol-popup:before {
-      border-top-color: #cccccc;
-      border-width: 11px;
-      left: 48px;
-      margin-left: -11px;
-    }
-
-    .ol-popup-closer {
-      text-decoration: none;
-      position: absolute;
-      top: 2px;
-      right: 8px;
-      color: #cccccc;
-    }
-
-    .ol-popup-closer:hover {
-      color: red;
-    }
-
-    .ol-popup-closer:after {
-      content: "✖";
-    }
-
-    /* 闪烁 */
-
-    .point-animate {
-      height: 50px;
-      width: 50px;
-      border-radius: 25px;
-      background: rgba(255, 0, 0, 0.9);
-      transform: scale(0);
-      animation: myfirst 2s;
-      animation-iteration-count: infinite;
-    }
-
-    @keyframes myfirst {
-      to {
-        transform: scale(2);
-        background: rgba(0, 0, 0, 0);
-      }
-    }
-
-
-    .info {
-      position: absolute;
-      top: 10px;
-      right: 200px;
-      color: red;
-    }
-
-    .center {
-      background: #ffffff;
-      border: 1px solid #cccccc;
-      padding: 6px 20px
-    }
-
-    #mounse-location {
-      position: fixed;
-      bottom: 10px;
-      right: 200px;
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="test/css/flex.css" type="text/css">
 </head>
 
 <body>
-  <div id="map"></div>
-  <div class="info">
-    <span id="mounse-location" class=""></span>
-    <span id="center" class="center"></span>
+  <div id="app" class="full-page" flex>
+    <div id="map" flex-box="1"></div>
+    <div class="nav bor-l" flex-box="0">
+      <div class="nav-item" v-for="item in type" :class="item.id===activeId?'active':''" :key="item.id"
+        @click="changeType(item)">{{item.name}}</div>
+      <div class="nav-item" v-for="item in demos" :class="item.id===activeId?'active':''" :key="item.id"
+        :title="item.title" @click="addFeature(item)">{{item.name}}</div>
+    </div>
   </div>
-  <div class="test-wrap" id="wrap">
-    <ul>
-      <li data-type="4">文档</li>
-      <li data-type="0">谷歌地图</li>
-      <li data-type="1">谷歌影像</li>
-      <li data-type="2">高德地图</li>
-      <li data-type="3">高德影像</li>
-      <li data-type="5">点</li>
-      <li data-type="6">线</li>
-      <li data-type="7">面</li>
-      <li data-type="8">描边</li>
-      <li data-type="9">气泡</li>
-
-      <li data-type="99">空气质量显示</li>
-    </ul>
-  </div>
-  <div id="popup" class="ol-popup">
-    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-    <div id="popup-centent"></div>
-  </div>
-  <script src="lib/olmaps.js"></script>
-  <script src="test/js/data.js"></script>
-  <script src="test/js/test.js"></script>
-  <script>
-    _$id('wrap').addEventListener('click', function (e) {
-      var id = Number(e.target.getAttribute('data-type'))
-      if (id <= 3) {
-        olmaps.setMapType(id)
-        return
-      }
-      switch (id) {
-        case 4:
-          window.open('./README.html')
-          break;
-        case 5:
-          init5()
-          break;
-        case 6:
-          init6()
-          break;
-        case 7:
-          init7()
-          break;
-        case 8:
-          init8()
-          break;
-        case 9:
-          init9()
-          break;
-        case 99:
-          pm25()
-          break;
-        default:
-          break;
-      }
-    })
-    bindEvent()
-  </script>
-
 </body>
+<script src="test/js/data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+<script src="lib/olmaps.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      activeId: '0',
+      type: [
+        { name: '谷歌行政图', id: '0' },
+        { name: '谷歌影像图', id: '1' },
+        { name: '高德行政图', id: '2' },
+        { name: '高德影像图', id: '3' }
+      ],
+      demos: [
+        { name: '点、线、圆', id: 'marker' },
+        { name: '多边形', id: 'polygon' },
+        { name: '描边', id: 'multiPolygon' },
+        { name: '空气质量图', id: 'air', title: "这里我偷懒用的addCircle添加的圆形标记放大会有问题，实际可以改成图标" },
+      ],
+      olmap: null,
+      map: {
+        zoom: 16,
+        // 记录弹出层的点位id
+        popId: ''
+      }
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.initMap()
+      })
+    },
+    methods: {
+      initMap() {
+        this.olmap = new Olmaps({
+          zoom: this.map.zoom
+        })
+        // 绑定事件
+        this.evt()
+      },
+      // 重置
+      reset(zoom, type) {
+        this.olmap.clear()
+        this.olmap.zoomTo(zoom || this.map.zoom)
+        this.olmap.setMapType(type || 0)
+        this.olmap.setMapCenter(["116.39786446", "39.92421163"])
+      },
+      changeType({ id }) {
+        this.activeId = id
+        this.reset()
+        this.olmap.setMapType(id)
+      },
+      addFeature({ id }) {
+        this.activeId = id
+        this.reset()
+        if (typeof this[id] === 'function') this[id]()
+      },
+      // 添加点线圆
+      marker() {
+        const data = this.olmap.addMarker(markers)
+        this.olmap.addLine(lineData)
+        this.olmap.addCircle({
+          center: [116.39786526, 39.92421163],
+          radius: 100
+        })
+        this.map.popId = data[data.length - 1]
+
+      },
+      // 添加2组多边形
+      polygon() {
+        this.olmap.addPolygon({
+          data: [
+            ["116.39786446", "39.92421163"],
+            ["116.39676252", "39.92947015"],
+            ["116.39503675", "39.92629634"],
+            ["116.39476110", "39.92293218"]
+          ],
+          name: '多边形测试',
+          id: '887777',
+          fill: 'yellow'
+        })
+        this.olmap.addPolygon([
+          ["116.39786446", "39.92421163"],
+          ["116.38676252", "39.92947015"],
+          ["116.39503675", "39.92429634"],
+          ["116.39476110", "39.92293218"]
+        ])
+
+      },
+      // 描边
+      multiPolygon() {
+        this.olmap.setMapCenter(geoPoint.boundary[0])
+        this.olmap.zoomTo(10)
+        this.olmap.addMultiPolygon({
+          data: [geoPoint.boundary],
+          name: geoPoint.name,
+          id: 'multiPolygon'
+        })
+      },
+      // 空气质量图
+      air() {
+        // 闪烁的气泡
+        function createAnimate() {
+          const dom = document.createElement('div')
+          dom.id = 'point-animate'
+          dom.className = 'point-animate'
+          document.body.appendChild(dom)
+          return dom
+        }
+        // 气泡的dom
+        function createInfoBox() {
+          const box = document.createElement('div')
+          box.style.backgroundColor = 'rgba(0, 0, 0, .5)'
+          box.style.padding = '10px'
+          box.style.color = '#ffffff'
+          box.style.borderRadius = '3px'
+          box.style.transition = 'all .38s'
+          return box
+        }
+        const animate = createAnimate()
+        const infoDom = createInfoBox()
+        const overlay = this.olmap.overlay({
+          el: animate,
+          position: 'center-center'
+        })
+        const overlay2 = this.olmap.overlay({
+          el: infoDom,
+          position: 'center-bottom'
+        })
+        let currentfeature = null
+        this.olmap.map.getOverlays().clear()
+        this.olmap.zoomTo(5)
+        this.olmap.setMapType(3)
+        this.olmap.setMapCenter([104.87, 34.21])
+        data.forEach((item, i) => {
+          const ids = this.olmap.addCircle({
+            // name: i + '_',
+            center: item.center,
+            radius: item.value * 120,
+            overlay: true,
+            fill: 'yellow'
+          })
+          item.olId = ids[0]
+        })
+        this.olmap.addPolygon(coords)
+        this.olmap.map.addOverlay(overlay)
+        this.olmap.map.addOverlay(overlay2)
+        // 鼠标上移闪烁
+        this.olmap.pointermove(function (evt, feature) {
+          if (!feature) {
+            currentfeature = null
+            overlay.setPosition(undefined)
+            overlay2.setPosition(undefined)
+            return
+          }
+          const property = feature.get('property') || {}
+          let id = null
+          let result = null
+          let str = ''
+          if (property.overlay) {
+            if (feature !== currentfeature) {
+              currentfeature = feature
+              overlay.setPosition(feature.getGeometry().getCenter())
+              id = feature.get('id')
+              for (let i = 0; i < data.length; i++) {
+                if (data[i].olId === id) {
+                  result = data[i]
+                  break
+                }
+              }
+              if (!result) return
+              str += '<div>' + result.name + '</div>'
+              str += '<div>' + result.value + '</div>'
+              infoDom.innerHTML = str
+              overlay2.setPosition(feature.getGeometry().getCenter())
+            }
+          } else {
+            currentfeature = null
+            overlay.setPosition(undefined)
+            overlay2.setPosition(undefined)
+          }
+        })
+      },
+      evt() {
+        let oldFeature = null
+        this.olmap.pointermove(function (evt, feature) {
+          if (feature) {
+            if (feature.get('id') == 'multiPolygon') {
+              const property = feature.get('property') || {}
+              feature.set('property', {
+                ...property,
+                fill: 'yellow'
+              })
+              oldFeature = feature
+            }
+          } else {
+            if (oldFeature) {
+              const property = oldFeature.get('property') || {}
+              oldFeature.set('property', {
+                ...property,
+                fill: null
+              })
+              oldFeature = null
+            }
+          }
+        })
+      }
+    }
+  })
+</script>
 
 </html>

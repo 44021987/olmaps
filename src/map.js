@@ -59,7 +59,6 @@ export default class Ol {
     this.map.addInteraction(new Drag())
     // 添加比例尺
     if (opts.scaleLine === true) this.map.addControl(new ScaleLine({ units: 'metric' }))
-    return this
   }
   /**
    * 添加瓦片图层
@@ -154,6 +153,7 @@ export default class Ol {
     callback && callback(mapSrc)
     return mapSrc
   }
+  // 获取当前层级
   getZoom (callback) {
     const zoom = this.map.getView().getZoom()
     callback && callback({
@@ -161,6 +161,7 @@ export default class Ol {
     })
     return Math.round(zoom * 10) / 10
   }
+  // 放大层级
   zoomIn () {
     let zoom = this.getZoom()
     this.map.getView().animate({
@@ -168,6 +169,7 @@ export default class Ol {
       duration: 300
     })
   }
+  // 缩小层级
   zoomOut () {
     let zoom = this.getZoom()
     this.map.getView().animate({
@@ -175,12 +177,14 @@ export default class Ol {
       duration: 300
     })
   }
+  // 设置层级
   zoomTo (zoom) {
     this.map.getView().animate({
       zoom: parseInt(zoom),
       duration: 0
     })
   }
+  // 根据id设置显示的图层
   setMapType (type) {
     const that = this
     function setVisible (keyArr) {
@@ -212,29 +216,28 @@ export default class Ol {
   }
   // 根据集合删除feature
   removeFeature (ids) {
-    const result = common.getAllFeatures(this.map)
-    const features = result.features
-    const featureLayer = result.featureLayer
-    let len = 0
-    for (let i = 0; i < features.length; i++) {
-      const feature = features[i]
-      const id = feature.get('id')
-      if (ids.indexOf(id) >= 0) {
-        featureLayer.removeFeature(feature)
-        len += 1
-        if (len === ids.length) break
+    const { features, featureLayer } = common.getAllFeatures(this.map)
+    let matchNum = 0
+    for (const f of features) {
+      const id = f.get('id')
+      if (ids.indexOf(id) !== -1) {
+        featureLayer.removeFeature(f)
+        // 当符合的feature和传入的id长度一致时停止循环
+        if (matchNum === ids.length - 1) return
+        matchNum++
       }
-
     }
   }
-  calculateGroup (opts = {}, callback) {
-    const ids = calculateGroup(opts, this)
-    callback && callback(ids)
-  }
+  // calculateGroup (opts = {}, callback) {
+  //   const ids = calculateGroup(opts, this)
+  //   callback && callback(ids)
+  // }
+  // 清除覆盖物及气泡
   clear () {
     this.map.removeLayer(this.layer)
     this.layer = null
     try {
+      // 设置弹出层不可见，实际不清除
       this.map.getOverlays().forEach(o => o.setPosition(undefined))
     } catch (error) {
       console.log(error)
@@ -265,15 +268,19 @@ export default class Ol {
   }
   on (type, callback) {
     if (typeof callback !== 'function') return
-    if (type === 'markerClick') {
-      _event.onMarkerClick = callback
-    } else if (type === 'markerLongClick') {
-      _event.onMarkerLongClick = callback
-    } else if (type === 'markerDrag') {
-      _event.onMarkerDragEnd = callback
-    } else if (type === 'change') {
-      this.onCameraChange(callback)
+    // 事件名称映射
+    const evtMap = {
+      markerClick: 'onMarkerClick',
+      markerLongClick: 'onMarkerLongClick',
+      markerDrag: 'onMarkerDragEnd'
     }
+    // 点位事件
+    if (evtMap[type]) {
+      _event[evtMap[type]] = callback
+      return
+    }
+    // change事件派发
+    this.onCameraChange(callback)
   }
   getDistanceFromPixel (num = pixelNum) {
     const point1 = this.map.getView().getCenter()
