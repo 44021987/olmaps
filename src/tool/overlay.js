@@ -1,7 +1,8 @@
-import Overlay from 'ol/Overlay'
+import Ovl from 'ol/Overlay'
 
+export const Overlay = Ovl
 export const overlay = options => {
-  return new Overlay({
+  return new Ovl({
     element: options.el,
     autoPan: true,
     positioning: options.position || 'center-top',
