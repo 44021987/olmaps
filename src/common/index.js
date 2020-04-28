@@ -116,25 +116,30 @@ export const getAllFeatures = function (map) {
 }
 /**
  * transfrom lonLat proj from 4326 to 3857
- * @param {Array} lonLatArr
+ * @param {Array} arr
  */
-export const transformLonLat = lonLatArr => {
-  if (!isArray(lonLatArr)) throw Error(`Method:transformLonLat 参数格式错误 ${lonLatArr}`)
+export const transformLonLat = arr => {
+  if (!isArray(arr)) throw Error(`Method:transformLonLat 参数格式错误 ${lonLatArr}`)
   function getlonLat (lonLatArr) {
-    if (!isArray(lonLatArr[0]) && lonLatArr.length === 2) {
-      return fromLonLat([Number(lonLatArr[0]), Number(lonLatArr[1])])
-    }
-    const result = []
-    lonLatArr.forEach(item => {
-      if (isArray(item) && !isArray(item[0])) {
-        result.push(fromLonLat([Number(item[0]), Number(item[1])]))
-      } else {
-        result.push(getlonLat(item))
+    const [long, lat] = lonLatArr
+    if (!isArray(long)) {
+      if (lonLatArr.length === 2) {
+        return fromLonLat([parseFloat(long), parseFloat(lat)])
       }
-    })
-    return result
+      throw Error(`Method:transformLonLat 参数格式错误 ${lonLatArr}`)
+    } else {
+      const result = []
+      lonLatArr.forEach(item => {
+        if (isArray(item) && !isArray(item[0])) {
+          result.push(fromLonLat([parseFloat(item[0]), parseFloat(item[1])]))
+        } else {
+          result.push(getlonLat(item))
+        }
+      })
+      return result
+    }
   }
-  return getlonLat(lonLatArr)
+  return getlonLat(arr)
 }
 
 /**
