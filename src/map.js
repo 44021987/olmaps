@@ -268,7 +268,7 @@ export default class Ol {
     this.map.on('moveend', function (evt) {
       const center = evt.map.getView().getCenter()
       const data = {
-        center: this.transProj(center),
+        center: that.transProj(center),
         zoom: that.getZoom()
       }
       callback && callback(data)
