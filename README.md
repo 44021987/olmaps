@@ -44,21 +44,21 @@ const olmaps =new Olmaps({
 
 ```
 
-| variable        | description          | type    | default                                                      |
-| --------------- | -------------------- | ------- | ------------------------------------------------------------ |
-| target          | dom 元素的 id        | String  | map                                                          |
-| center          | 初始化地图中心点坐标 | Array   | [116.39786526, 39.92421163]                                  |
-| zoom            | 地图初始化层级       | Number  | 16                                                           |
-| minZoom         | 最小缩放层级         | Number  | 3                                                            |
-| maxZoom         | 最大缩放层级         | Number  | 20                                                           |
+| variable        | description          | type    | default                                                                                      |
+| --------------- | -------------------- | ------- | -------------------------------------------------------------------------------------------- |
+| target          | dom 元素的 id        | String  | map                                                                                          |
+| center          | 初始化地图中心点坐标 | Array   | [116.39786526, 39.92421163]                                                                  |
+| zoom            | 地图初始化层级       | Number  | 16                                                                                           |
+| minZoom         | 最小缩放层级         | Number  | 3                                                                                            |
+| maxZoom         | 最大缩放层级         | Number  | 20                                                                                           |
 | mapSrc          | 自定义图层           | Array   | 支持自定义传入，不传入默认 '0' 谷歌行政图， '1' 谷歌影像图 ，'2' 高德行政图， '3' 高德影像图 |
-| pinchRotate     | 手指旋转             | Boolean | false                                                        |
-| doubleClickZoom | 是否双击放大         | Boolean | false                                                        |
-| scaleLine       | 比例尺显示           | Boolean | true                                                         |
+| pinchRotate     | 手指旋转             | Boolean | false                                                                                        |
+| doubleClickZoom | 是否双击放大         | Boolean | false                                                                                        |
+| scaleLine       | 比例尺显示           | Boolean | true                                                                                         |
 
 ## 1、Methods
 
-### setMapCenter 
+### setMapCenter
 
 设置地图中心点
 
@@ -66,7 +66,7 @@ const olmaps =new Olmaps({
 olmaps.setMapCenter([116.39786526, 39.92421163])
 ```
 
-### setMapType 
+### setMapType
 
 切换地图类型
 
@@ -93,13 +93,13 @@ const olmaps = new Olmaps({
       src:
         'http://mt1.google.cn/vt/lyrs=h@298&hl=zh-CN&gl=cn&scale=1&z={z}&y={y}&x={x}', // 地址
       visible: true, // 是否显示
-      id: '66' // 类型id 必须唯一
-    }
-  ]
+      id: '66', // 类型id 必须唯一
+    },
+  ],
 })
 ```
 
-### getZoom 
+### getZoom
 
 获取当前缩放层级
 
@@ -111,7 +111,7 @@ const zoom = olmaps.getZoom()
 | -------- | ----------- |
 | zoom     | 缩放层级    |
 
-### getCenter 
+### getCenter
 
 获取当前中心点坐标
 
@@ -127,7 +127,7 @@ const center = olmaps.getCenter()
 const resultUrl = olmaps.getRequestUrl(callback)
 ```
 
-### zoomIn 
+### zoomIn
 
 放大一个层级
 
@@ -135,7 +135,7 @@ const resultUrl = olmaps.getRequestUrl(callback)
 olmaps.zoomIn()
 ```
 
-### zoomOut 
+### zoomOut
 
 缩小一个层级
 
@@ -143,7 +143,7 @@ olmaps.zoomIn()
 olmaps.zoomOut()
 ```
 
-### zoomTo 
+### zoomTo
 
 设置层级大小
 
@@ -151,7 +151,7 @@ olmaps.zoomOut()
 olmaps.zoomTo(15)
 ```
 
-### getCoordinateLength 
+### getCoordinateLength
 
 获取 2 个经纬度之间的直线距离
 
@@ -162,33 +162,37 @@ const dis = olmaps.getCoordinateLength([
 ])
 ```
 
-### transformLonLat 
+### transformLonLat
 
-4326坐标系转3857
-
-```js
-const res = transformLonLat([116.39786526,39.92421163])
-```
-
-### transProj 
-
-坐标系互转，默认从2857转4326
+4326 坐标系转 3857
 
 ```js
-const res =transProj(lonLatArr, oldproj = 'EPSG:3857', newproj = 'EPSG:4326')
+const res = transformLonLat([116.39786526, 39.92421163])
 ```
 
-### addLayer 
+### transProj
 
-添加layer
+坐标系互转，默认从 2857 转 4326
 
-### getZoomWidthDis 
+```js
+const res = transProj(
+  lonLatArr,
+  (oldproj = 'EPSG:3857'),
+  (newproj = 'EPSG:4326')
+)
+```
 
-传入一个距离，获取视野范围内最适合的层级  
+### addLayer
 
-### mapExtent 
+添加 layer
 
-获取视野范围4个角的经纬度
+### getZoomWidthDis
+
+传入一个距离，获取视野范围内最适合的层级
+
+### mapExtent
+
+获取视野范围 4 个角的经纬度
 
 ## 2、绘制覆盖物
 
@@ -240,67 +244,67 @@ const info = olmaps.addLine([
   {
     data: [
       ['116.39786526', '39.92421163'],
-      ['116.39593675', '39.92629634']
-    ],
-    color: 'green',
-    textColor: 'green',
-    showDistance: true,
-    type: 'dash'
-  },
-  {
-    data: [
       ['116.39593675', '39.92629634'],
-      ['116.39670252', '39.92647015']
-    ],
-    color: 'red',
-    textColor: 'green',
-    showDistance: false,
-    type: 'line'
-  },
-  {
-    data: [
-      ['116.39670252', '39.92647015'],
-      ['116.39473110', '39.92293218']
-    ],
-    color: 'green',
-    textColor: 'red',
-    showDistance: true,
-    type: 'line'
-  }
-])[
-  // result -> info
-  ({
-    data: [
-      ['116.39786526', '39.92421163'],
-      ['116.39593675', '39.92629634']
     ],
     color: 'green',
     textColor: 'green',
     showDistance: true,
     type: 'dash',
-    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b'
   },
   {
     data: [
       ['116.39593675', '39.92629634'],
-      ['116.39670252', '39.92647015']
+      ['116.39670252', '39.92647015'],
     ],
     color: 'red',
     textColor: 'green',
     showDistance: false,
     type: 'line',
-    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b'
   },
   {
     data: [
       ['116.39670252', '39.92647015'],
-      ['116.39473110', '39.92293218']
+      ['116.39473110', '39.92293218'],
     ],
     color: 'green',
     textColor: 'red',
     showDistance: true,
     type: 'line',
-    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b'
+  },
+])[
+  // result -> info
+  ({
+    data: [
+      ['116.39786526', '39.92421163'],
+      ['116.39593675', '39.92629634'],
+    ],
+    color: 'green',
+    textColor: 'green',
+    showDistance: true,
+    type: 'dash',
+    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b',
+  },
+  {
+    data: [
+      ['116.39593675', '39.92629634'],
+      ['116.39670252', '39.92647015'],
+    ],
+    color: 'red',
+    textColor: 'green',
+    showDistance: false,
+    type: 'line',
+    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b',
+  },
+  {
+    data: [
+      ['116.39670252', '39.92647015'],
+      ['116.39473110', '39.92293218'],
+    ],
+    color: 'green',
+    textColor: 'red',
+    showDistance: true,
+    type: 'line',
+    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b',
   })
 ]
 ```
@@ -347,28 +351,29 @@ const info = olmaps.addCircle({
 ```js
 const info = olmaps.addPolygon({
   data: [
-    ["116.39786526","39.92421163"],
-    ["116.39593675","39.92629634"],
-    ["116.39670252","39.92647015"],
-    ["116.39473110","39.92293218"]
+    ['116.39786526', '39.92421163'],
+    ['116.39593675', '39.92629634'],
+    ['116.39670252', '39.92647015'],
+    ['116.39473110', '39.92293218'],
   ],
   id: '887777',
-  fill: 'yellow'
-})
+  fill: 'yellow',
+})[
+  // return
+  '689dc349-2bfa-4eed-8173-82cc2c76cacb'
+]
+```
+
 | variable    | description               | type   | default           |
 | ----------- | ------------------------- | ------ | ----------------- |
 | id          | 唯一标识                  | String | uuid              |
 | name        | 名称                      | String |                   |
-| data      | 经度纬度集合           | Array  | ———               |
+| data        | 经度纬度集合              | Array  | ———               |
 | textColor   | 文字颜色                  | String | green             |
 | text        | 文字其他属性参考 ol6 文档 | Object |                   |
 | fill        | 填充颜色                  | String | rgba(255,0,0,0.1) |
 | strokeColor | 边框颜色                  | String | rgba(255,0,0,0.1) |
 | strokeWidth |                           | Number | 1                 |
-
-// return
-["689dc349-2bfa-4eed-8173-82cc2c76cacb"]
-```
 
 ### addMultiPolygon 描点（描边）
 
@@ -487,5 +492,3 @@ olmaps.on('markerLongClick', function(result) {
 ### olmaps.map
 
 返回 map 实例，map 上的其他操作参考 openlayers 的官方 API
-
-
