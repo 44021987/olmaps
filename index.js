@@ -1,2 +1,2 @@
-var Olmaps = require('./lib/map.js')
+var Olmaps = require('./lib/index.js')
 module.exports = Olmaps

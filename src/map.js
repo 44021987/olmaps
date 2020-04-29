@@ -8,7 +8,7 @@ import { defaults as defaultInteractions } from 'ol/interaction'
 import * as utils from './utils'
 import * as common from './common'
 import { featureDrag } from './event/drag'
-import { calculateGroup } from './component'
+// import { calculateGroup } from './component'
 import { mapSrc, pixelNum } from './config'
 
 const _event = {}
@@ -24,20 +24,39 @@ const defaultsConfig = {
 }
 export default class Ol {
   constructor(opts = {}) {
-    // 图层集合，根据唯一标识id存放
-    this.mapLayers = {}
     this.map = null
     this.layer = null
+    // 图层集合，根据唯一标识id存放
+    this.mapLayers = {}
+    // 基础配置
+    this.config = Object.assign(defaultsConfig, opts)
+    this.zoomDisMap = Object.freeze({
+      '2': 5000000,
+      '3': 2000000,
+      '4': 1000000,
+      '5': 500000,
+      '6': 200000,
+      '7': 100000,
+      '8': 50000,
+      '9': 20000,
+      '10': 10000,
+      '11': 7500,
+      '12': 5000,
+      '13': 2000,
+      '14': 1000,
+      '15': 500,
+      '16': 200,
+      '17': 100,
+      '18': 50
+    })
     this.init(opts)
   }
   /**
    * 初始化地图
    * @param {object} data
    */
-  init (opts = {}) {
-    for (const key in defaultsConfig) {
-      if (opts[key] === undefined) opts[key] = defaultsConfig[key]
-    }
+  init () {
+    const opts = this.config
     this.map = new Map({
       interactions: defaultInteractions({
         pinchRotate: opts.pinchRotate || false,
@@ -46,7 +65,7 @@ export default class Ol {
       target: opts.target,
       layers: this.addMapLayer(opts.mapSrc),
       view: new View({
-        center: common.transformLonLat(opts.center),
+        center: this.transformLonLat(opts.center),
         projection: 'EPSG:3857',
         rotation: 0,
         zoom: opts.zoom,
@@ -70,7 +89,7 @@ export default class Ol {
     }
     const layers = []
     layerUrls.forEach(item => {
-      const layer = common.xyzLayer(item.name, item.src, item.visible)
+      const layer = this.xyzLayer(item.name, item.src, item.visible)
       this.mapLayers[item.id] = layer
       layers.push(layer)
     })
@@ -82,9 +101,9 @@ export default class Ol {
    * @param {*} callback 
    */
   addCircle (opts, callback) {
-    opts.radius = common._transformCircleRadius(this.map, opts.radius)
+    opts.radius = this._transformCircleRadius(this.map, opts.radius)
     const { features, data } = utils.circle(opts)
-    common.addLayer(features, this)
+    this.addLayer(features, this)
     callback && callback(data, features)
     return data
   }
@@ -103,7 +122,7 @@ export default class Ol {
       polygon = utils.adPolygon(coordinates || {})
     }
     const { features, data } = polygon
-    common.addLayer(features, this)
+    this.addLayer(features, this)
     callback && callback(data, features)
     return data
   }
@@ -115,7 +134,7 @@ export default class Ol {
   addMultiPolygon (opts, callback) {
     const polygonLayer = utils.multiPolygon(opts)
     const { features, data } = polygonLayer
-    common.addLayer(features, this)
+    this.addLayer(features, this)
     callback && callback(data, polygonLayer)
     return data
   }
@@ -127,7 +146,7 @@ export default class Ol {
   addMarker (pointArray, callback) {
     const markersLayer = utils.marker(pointArray)
     const { features, data } = markersLayer
-    common.addLayer(features, this)
+    this.addLayer(features, this)
     callback && callback(data, markersLayer)
     return data
   }
@@ -139,14 +158,14 @@ export default class Ol {
   addLine (lineOptsArr, callback) {
     const lineLayer = utils.lineString(lineOptsArr)
     const features = lineLayer.features
-    common.addLayer(features, this)
+    this.addLayer(features, this)
     callback && callback(lineLayer.data)
     return lineLayer.data
   }
   // 获取地图中心点
   getCenter (callback) {
     const center = this.map.getView().getCenter()
-    callback && callback(common.transProj(center))
+    callback && callback(this.transProj(center))
     return center
   }
   getRequestUrl (callback) {
@@ -204,19 +223,20 @@ export default class Ol {
   }
   // 设置地图中心点
   setMapCenter (center) {
+
     if (!center instanceof Array) throw Error('参数格式错误，应该为Array')
     const lat = center[1] | 0
     const lon = center[0] | 0
     // 经纬度简单验证
     if (lon > 180 || lat > 90) throw Error(`经纬度范围错误:${center}`)
     this.map.getView().animate({
-      center: common.transformLonLat(center),
+      center: this.transformLonLat(center),
       duration: 300
     })
   }
   // 根据集合删除feature
   removeFeature (ids) {
-    const { features, featureLayer } = common.getAllFeatures(this.map)
+    const { features, featureLayer } = this.getAllFeatures(this.map)
     let matchNum = 0
     for (const f of features) {
       const id = f.get('id')
@@ -248,7 +268,7 @@ export default class Ol {
     this.map.on('moveend', function (evt) {
       const center = evt.map.getView().getCenter()
       const data = {
-        center: common.transProj(center),
+        center: this.transProj(center),
         zoom: that.getZoom()
       }
       callback && callback(data)
@@ -266,6 +286,11 @@ export default class Ol {
       callback && callback(evt, feature)
     })
   }
+  /**
+   * 自定义事件回调
+   * @param {String} type 事件类型
+   * @param {Function} callback 
+   */
   on (type, callback) {
     if (typeof callback !== 'function') return
     // 事件名称映射
@@ -291,8 +316,12 @@ export default class Ol {
     const dis = getLength(new LineString([point1, point2]))
     return parseInt(Math.round(dis * 100) / 100)
   }
+  /**
+   * 获取2个经纬度距离
+   * @param {array} coordinate 
+   */
   getCoordinateLength (coordinate) {
-    const dis = getLength(new LineString(common.transformLonLat(coordinate)))
+    const dis = getLength(new LineString(this.transformLonLat(coordinate)))
     return parseInt(Math.round(dis * 100) / 100)
   }
 }

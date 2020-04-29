@@ -9,3 +9,7 @@ export { multiPolygon } from './multiPolygon'
 export { draw } from './draw'
 
 export const style = featureStyle
+
+
+// openlayers
+export { overlay } from '../tool/overlay'

@@ -191,7 +191,8 @@ export const transProj = (lonLatArr, oldproj = 'EPSG:3857', newproj = 'EPSG:4326
  * 根据距离获取接近的层级
  * @param {Number} dis 距离
  */
-export const getZoomWidthDis = dis => {
+export const getZoomOnDis = function (dis) {
+  const olmapScale = this.zoomDisMap
   const zoomKey = Object.keys(olmapScale)
   for (let i = 0; i < zoomKey.length; i++) {
     const key = zoomKey[i]
