@@ -39,18 +39,30 @@
         { name: '多边形', id: 'polygon' },
         { name: '描边', id: 'multiPolygon' },
         { name: '空气质量图', id: 'air', title: "这里我偷懒用的addCircle添加的圆形标记放大会有问题，实际可以改成图标" },
+        { name: '轨迹', id: 'move', title: "这里我偷懒用的addCircle添加的圆形标记放大会有问题，实际可以改成图标" }
       ],
       olmap: null,
       map: {
         zoom: 16,
         // 记录弹出层的点位id
         popId: ''
-      }
+      },
+      // 移动的点位信息
+      movePoint: {
+        id: ''
+      },
+      timer: null
     },
     mounted() {
       this.$nextTick(() => {
         this.initMap()
       })
+    },
+    beforeDestroy() {
+      // 清除定时器
+      if (this.timer) {
+        window.cancelAnimationFrame(this.timer)
+      }
     },
     methods: {
       initMap() {
@@ -68,17 +80,18 @@
         this.olmap.setMapCenter(["116.39786446", "39.92421163"])
       },
       changeType({ id }) {
-        this.activeId = id
         this.reset()
+        this.activeId = id
         this.olmap.setMapType(id)
       },
       addFeature({ id }) {
-        this.activeId = id
         this.reset()
+        this.activeId = id
         if (typeof this[id] === 'function') this[id]()
       },
       // 添加点线圆
       marker() {
+        console.log(markers)
         const data = this.olmap.addMarker(markers)
         this.olmap.addLine(lineData)
         this.olmap.addCircle({
@@ -203,8 +216,166 @@
           }
         })
       },
+      // 轨迹移动
+      move() {
+        // this.reset()
+        // this.olmap.clear()
+        let routeCoords = []
+        let maxDis = 0
+        const moveData = Array.from({ length: 12 }).map(() => {
+          return {
+            "latitude": 39.92421163 + Math.random() / 10,
+            "longitude": 116.39786446 + Math.random() / 10
+          }
+        })
+        moveData.forEach((v, i, arr) => {
+          const from = i === 0 ? arr[i] : arr[i - 1]
+          const to = arr[i]
+          if (i === 0) {
+            this.addLine([from.longitude, from.latitude], [to.longitude, to.latitude], 'moveline')
+            // 添加移动目标
+            const movePointIds = this.olmap.addMarker([from])
+            // 记录移动的点位ID
+            this.movePoint.id = movePointIds[0]
+
+          }
+
+          const dis = this.olmap.getCoordinateLength([
+            [arr[0].longitude, arr[0].latitude],
+            [arr[i].longitude, arr[i].latitude]
+          ])
+          // 设置最大的距离
+          if (dis >= maxDis) maxDis = dis
+          // 获取移动点位集合
+          routeCoords = routeCoords.concat(
+            this.genInsertPoints({
+              start: [from.longitude, from.latitude],
+              end: [to.longitude, to.latitude]
+            })
+          )
+        })
+        // 根据最大距离获取对应层级
+        const zoom = this.olmap.getZoomWidthDis(maxDis)
+        // 设置层级
+        if (zoom) this.olmap.zoomTo(zoom + 1)
+        this.startMove(routeCoords)
+      },
+      /**
+      * 分割两点之间经纬度
+      * @param {Object} param 起始点数据
+      * @param {Array} param.start  起点经纬度 [120.345885, 31.575855]
+      * @param {Array} param.end  结束经纬度 [120.345885, 31.575855]
+      * @param {Number} param.distance  分割距离
+      */
+      genInsertPoints({ start, end }) {
+        // 获取起始点之间距离
+        const total = this.olmap.getCoordinateLength([start, end])
+        const zoom = this.olmap.getZoom()
+        // 最后返回的经纬度
+        const points = []
+        // 经纬度一样忽略掉，不进行分割
+        if (!total) return []
+        // 计算距离
+        const distance = total / (zoom * 10)
+        // 获取总分割数量
+        let num = Math.ceil(total / distance)
+        // 如果两点之间的距离小于设置的分割距离,直接取起始点
+        if (total <= 10 || num <= 1) {
+          points.push(end)
+          return points
+        }
+        // 分割
+        for (var i = 1; i <= num; i++) {
+          const [slon, slat] = start
+          const [elon, elat] = end
+          // 注意要将经纬度转换为数字
+          points.push([
+            // 经度
+            i * distance / total * (elon - slon) + Number(slon),
+            // 纬度
+            i * distance / total * (elat - slat) + Number(slat)
+          ])
+        }
+        return points
+      },
+      addLine(from, to, id) {
+        this.olmap.addLine([{
+          data: [from, to],
+          showDistance: false,
+          type: 'line',
+          color: '#ff9933',
+          id
+        }])
+      },
+      /**
+      * 移动点位
+      * @param{Array} routeCoords 移动轨迹经纬度集合
+      */
+      startMove(routeCoords) {
+        routeCoords = routeCoords || []
+        // 当前移动点位
+        let Movefeature = null
+        // 移动的轨迹线
+        let movelineFeature = null
+        // 记录移动的index
+        let i = 0
+        // 获取所有features
+        const features = this.olmap.getAllFeatures().features
+        // 获取移动的点位
+        for (let i = 0; i < features.length; i++) {
+          const feature = features[i]
+          if (feature.get('id') === this.movePoint.id) {
+            Movefeature = feature
+          }
+          // 轨迹线段
+          if (feature.get('id') === 'moveline') {
+            movelineFeature = feature
+          }
+        }
+        // 没有获取到移动点位则不往下执行
+        if (!Movefeature) return
+        if (!routeCoords) return
+
+        // 开始运动
+        const moveFn = () => {
+          // console.log(i)
+          const geometry = Movefeature.getGeometry()
+          if (i === 0) {
+            this.olmap.setMapCenter(routeCoords[0])
+          }
+          // 停止运动
+          if (i > routeCoords.length - 1) {
+            window.cancelAnimationFrame(moveFn)
+            movelineFeature.getGeometry().appendCoordinate(
+              this.olmap.transformLonLat(
+                routeCoords[i - 1]
+              )
+            )
+            return
+          }
+          // 更新坐标为下一个
+          geometry.setCoordinates(this.olmap.transformLonLat(routeCoords[i]))
+          // 每隔10个更新轨迹位置
+          if (i % 10 === 0) {
+            movelineFeature.getGeometry().appendCoordinate(
+              this.olmap.transformLonLat(
+                routeCoords[i]
+              )
+            )
+          }
+          this.timer = window.requestAnimationFrame(moveFn)
+          i++
+        }
+        this.timer = window.requestAnimationFrame(moveFn)
+      },
       evt() {
         let oldFeature = null
+        this.olmap.on('markerClick', data => {
+          if (data.olId === this.map.popId) {
+            alert('我被点击了,点击后删除点位')
+            this.olmap.removeFeature([data.olId])
+          }
+        })
         this.olmap.pointermove(function (evt, feature) {
           if (feature) {
             if (feature.get('id') == 'multiPolygon') {

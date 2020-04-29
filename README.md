@@ -1,12 +1,12 @@
 <!-- [TOC] -->
 
-## Olmaps API
+# Olmaps API
 
 **基于 openlayers5 的封装**
 
-默认传入和返回的经纬度都是 EPSG:4326 坐标体系，如使用其他的坐标系需要经过转换，地图内部使用的 EPSG:3857 坐标系。<br/>代码中所有瓦片数据均来源于网络，仅用做学习之用，如有侵权可联系 44021987@qq.com 删除，谢谢！
+默认传入和返回的经纬度都是 EPSG:4326 坐标体系，如使用其他的坐标系需要经过转换，地图内部使用的 EPSG:3857 坐标系。<br/>**代码中所有瓦片数据均来源于网络，仅用做学习之用，如有侵权可联系 44021987@qq.com 删除，谢谢！**
 
-### 使用
+## 使用
 
 - 浏览器直接引入 dist 目录下 index.js
 - npm 安装
@@ -23,12 +23,6 @@ import Olmaps from 'olmaps'
 const olmaps = new Olmaps()
 console.log(olmaps.getZoom())
 ```
-
-### API
-
-##### 1、methods
-
-###### new Olmaps 初始化
 
 ```js
 const olmaps =new Olmaps({
@@ -62,13 +56,19 @@ const olmaps =new Olmaps({
 | doubleClickZoom | 是否双击放大         | Boolean | false                                                        |
 | scaleLine       | 比例尺显示           | Boolean | true                                                         |
 
-###### setMapCenter 设置地图中心点
+## 1、Methods
+
+### setMapCenter 
+
+设置地图中心点
 
 ```
 olmaps.setMapCenter([116.39786526, 39.92421163])
 ```
 
-###### setMapType 切换地图类型
+### setMapType 
+
+切换地图类型
 
 - 默认支持以下四种类型地图
 
@@ -80,7 +80,7 @@ olmaps.setMapType('0')
 | -------- | ----------------------------------------------------------- |
 | type     | '0' 谷歌行政图 '1' 谷歌影像图 '2' 高德行政图 '3' 高德影像图 |
 
-###### 添加自定义图层
+添加自定义图层
 
 - 支持添加多个，type 为切换地图类型时使用
 
@@ -99,7 +99,9 @@ const olmaps = new Olmaps({
 })
 ```
 
-###### getZoom 获取当前缩放层级
+### getZoom 
+
+获取当前缩放层级
 
 ```
 const zoom = olmaps.getZoom()
@@ -109,7 +111,9 @@ const zoom = olmaps.getZoom()
 | -------- | ----------- |
 | zoom     | 缩放层级    |
 
-###### getCenter 获取当前中心点坐标
+### getCenter 
+
+获取当前中心点坐标
 
 ```
 const center = olmaps.getCenter()
@@ -117,31 +121,39 @@ const center = olmaps.getCenter()
 [116.39786526, 39.92421163]
 ```
 
-###### ~~获取请求地址~~
+### ~~获取请求地址~~
 
 ```js
 const resultUrl = olmaps.getRequestUrl(callback)
 ```
 
-###### zoomIn 放大一个层级
+### zoomIn 
+
+放大一个层级
 
 ```js
 olmaps.zoomIn()
 ```
 
-###### zoomOut 缩小一个层级
+### zoomOut 
+
+缩小一个层级
 
 ```js
 olmaps.zoomOut()
 ```
 
-###### zoomTo 设置层级大小
+### zoomTo 
+
+设置层级大小
 
 ```js
 olmaps.zoomTo(15)
 ```
 
-###### getCoordinateLength 获取 2 个经纬度之间的直线距离
+### getCoordinateLength 
+
+获取 2 个经纬度之间的直线距离
 
 ```
 const dis = olmaps.getCoordinateLength([
@@ -150,31 +162,37 @@ const dis = olmaps.getCoordinateLength([
 ])
 ```
 
-###### transformLonLat 4326坐标系转3857
+### transformLonLat 
+
+4326坐标系转3857
 
 ```js
 const res = transformLonLat([116.39786526,39.92421163])
 ```
 
-###### transProj坐标系互转
+### transProj 
 
-默认从2857转4326
+坐标系互转，默认从2857转4326
 
 ```js
 const res =transProj(lonLatArr, oldproj = 'EPSG:3857', newproj = 'EPSG:4326')
 ```
 
-###### addLayer 添加layer
+### addLayer 
 
-###### getZoomWidthDis 获取对应层级
+添加layer
+
+### getZoomWidthDis 
 
 传入一个距离，获取视野范围内最适合的层级  
 
-###### mapExtent 获取视野范围4个角的经纬度
+### mapExtent 
 
-##### 2、绘制覆盖物
+获取视野范围4个角的经纬度
 
-###### addMarker 绘制点标记
+## 2、绘制覆盖物
+
+### addMarker 绘制点标记
 
 ```
 const markerInfo = olmaps.addMarker([
@@ -214,7 +232,7 @@ const markerInfo = olmaps.addMarker([
 | text      | 文字其他属性参考 ol6 文档 | Object  |         |
 | icon      | 图标其他属性参考 ol6 文档 | Object  |         |
 
-###### addLine 绘制线集合
+### addLine 绘制线集合
 
 ```js
 // 入参
@@ -296,7 +314,7 @@ const info = olmaps.addLine([
 | showDistance | Boolean        | 是否显示距离        | true    |
 | id           | String         | 点位标识            |
 
-###### addCircle 绘制圆形
+### addCircle 绘制圆形
 
 一次只绘制一个
 
@@ -322,7 +340,7 @@ const info = olmaps.addCircle({
 | strokeColor | 边框颜色                  | String | rgba(255,0,0,0.1) |
 | strokeWidth |                           | Number | 1                 |
 
-###### addPolygon 绘制多边形
+### addPolygon 绘制多边形
 
 - 绘制多边形(一次只绘制一个)
 
@@ -352,7 +370,7 @@ const info = olmaps.addPolygon({
 ["689dc349-2bfa-4eed-8173-82cc2c76cacb"]
 ```
 
-###### addMultiPolygon 描点（描边）
+### addMultiPolygon 描点（描边）
 
 - 特别注意这里需要传入 data 的数组格式
 
@@ -377,12 +395,12 @@ const info = olmaps.addMultiPolygon({
 | name | String |
 | id   | String | 唯一标识    |
 
-###### ~~点线集合~~
+### ~~点线集合~~
 
 - 绘制一组实时显示距离的点线集合
 - 返回 id 集合用于删除该组数据
 
-###### removeFeature 删除覆盖物
+### removeFeature 删除覆盖物
 
 - 所有增加的覆盖物都可通过此方法单独删除
 - ids 为标识集合（只删除一个也传 list）
@@ -395,21 +413,21 @@ olmaps.removeFeature([
 
 ```
 
-###### clear 清除 所有覆盖物
+### clear 清除 所有覆盖物
 
 ```js
 olmaps.clear()
 ```
 
-###### getAllFeatures 获取所有覆盖物
+### getAllFeatures 获取所有覆盖物
 
 ```js
 olmaps.getAllFeatures()
 ```
 
-##### 3、events
+## 3、Events
 
-###### change 地图移动的监听
+### change 地图移动的监听
 
 - 返回移动后的地图中心点坐标
 
@@ -423,7 +441,7 @@ olmaps.on('change', function(result) {
 }
 ```
 
-###### markerDrag 标记拖动回调
+### markerDrag 标记拖动回调
 
 ```js
 olmaps.on('markerDrag', function(result) {
@@ -442,7 +460,7 @@ olmaps.on('markerDrag', function(result) {
 | oldCoordinates | 拖动前坐标     |
 | olId           | 被拖动点位标识 |
 
-###### markerClick 标记点击回调
+### markerClick 标记点击回调
 
 ```js
 olmaps.on('markerClick', function(result) {
@@ -454,7 +472,7 @@ olmaps.on('markerClick', function(result) {
 }
 ```
 
-###### markerLongClick 标记长按回调
+### markerLongClick 标记长按回调
 
 ```js
 olmaps.on('markerLongClick', function(result) {
@@ -466,7 +484,7 @@ olmaps.on('markerLongClick', function(result) {
 }
 ```
 
-###### olmaps.map
+### olmaps.map
 
 返回 map 实例，map 上的其他操作参考 openlayers 的官方 API
 

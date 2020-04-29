@@ -12,26 +12,6 @@ import { devicePixelRatio as tilePixelRatio } from '../config'
 // 验证数组类型
 const isArray = arr => arr instanceof Array
 
-// 层级对应的大致比例尺
-const olmapScale = {
-  '2': 5000000,
-  '3': 2000000,
-  '4': 1000000,
-  '5': 500000,
-  '6': 200000,
-  '7': 100000,
-  '8': 50000,
-  '9': 20000,
-  '10': 10000,
-  '11': 7500,
-  '12': 5000,
-  '13': 2000,
-  '14': 1000,
-  '15': 500,
-  '16': 200,
-  '17': 100,
-  '18': 50
-}
 
 /**
  * map addLayer
@@ -191,7 +171,7 @@ export const transProj = (lonLatArr, oldproj = 'EPSG:3857', newproj = 'EPSG:4326
  * 根据距离获取接近的层级
  * @param {Number} dis 距离
  */
-export const getZoomOnDis = function (dis) {
+export const getZoomWidthDis = function (dis) {
   const olmapScale = this.zoomDisMap
   const zoomKey = Object.keys(olmapScale)
   for (let i = 0; i < zoomKey.length; i++) {

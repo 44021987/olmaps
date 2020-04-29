@@ -18,7 +18,6 @@ export const lineString = (linearr) => {
     if (!data instanceof Array || !data.length) return
     const id = item.id || item.olId || uuidv4()
     const geometry = new LineString(transformLonLat(data))
-    console.log(typeof showDistance)
     ids.push(id)
     return new Feature({
       type: 'lineString',
