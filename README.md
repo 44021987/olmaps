@@ -401,7 +401,7 @@ const info = olmaps.addMultiPolygon({
 ### removeFeature 删除覆盖物
 
 - 所有增加的覆盖物都可通过此方法单独删除
-- ids 为标识集合（只删除一个也传 list）
+- ids 为标识集合
 
 ```
 olmaps.removeFeature([
