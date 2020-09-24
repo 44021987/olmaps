@@ -8,10 +8,10 @@ import { defaults as defaultInteractions } from 'ol/interaction'
 import * as utils from './utils'
 import * as common from './common'
 import { featureDrag } from './event/drag'
+import EventEmit from './event/evtEmit'
 // import { calculateGroup } from './component'
 import { mapSrc, pixelNum } from './config'
-
-const _event = {}
+// const _event = {}
 // 默认设置
 const defaultsConfig = {
   target: 'map',
@@ -22,8 +22,9 @@ const defaultsConfig = {
   scaleLine: true,
   mapSrc
 }
-export default class Ol {
+export default class Ol extends EventEmit {
   constructor(opts = {}) {
+    super()
     this.map = null
     this.layer = null
     // 图层集合，根据唯一标识id存放
@@ -73,8 +74,9 @@ export default class Ol {
         maxZoom: opts.maxZoom
       })
     })
+    // console.log(_event)
     // 添加拖拽
-    const { Drag } = featureDrag(_event)
+    const { Drag } = featureDrag(this._evtCbs)
     this.map.addInteraction(new Drag())
     // 添加比例尺
     if (opts.scaleLine === true) this.map.addControl(new ScaleLine({ units: 'metric' }))
@@ -98,21 +100,21 @@ export default class Ol {
   /**
    * 添加圆
    * @param {*} opts 
-   * @param {*} callback 
+   * @param {*} cb 
    */
-  addCircle (opts, callback) {
+  addCircle (opts, cb) {
     opts.radius = this._transformCircleRadius(this.map, opts.radius)
     const { features, data } = utils.circle(opts)
     this.addLayer(features, this)
-    callback && callback(data, features)
+    cb && cb(data, features)
     return data
   }
   /**
    * 绘制多边形
    * @param {*} coordinates 
-   * @param {*} callback 
+   * @param {*} cb 
    */
-  addPolygon (coordinates, callback) {
+  addPolygon (coordinates, cb) {
     let polygon = null
     // 如果传入数组，采用默认样式，为了兼容老版本
     if (coordinates instanceof Array) {
@@ -123,59 +125,59 @@ export default class Ol {
     }
     const { features, data } = polygon
     this.addLayer(features, this)
-    callback && callback(data, features)
+    cb && cb(data, features)
     return data
   }
   /**
    * 描边
    * @param {*} opts 
-   * @param {*} callback 
+   * @param {*} cb 
    */
-  addMultiPolygon (opts, callback) {
+  addMultiPolygon (opts, cb) {
     const polygonLayer = utils.multiPolygon(opts)
     const { features, data } = polygonLayer
     this.addLayer(features, this)
-    callback && callback(data, polygonLayer)
+    cb && cb(data, polygonLayer)
     return data
   }
   /**
    * 绘制点标记
    * @param {Array} pointArray 点配置集合
-   * @param {Function} callback 
+   * @param {Function} cb 
    */
-  addMarker (pointArray, callback) {
+  addMarker (pointArray, cb) {
     const markersLayer = utils.marker(pointArray)
     const { features, data } = markersLayer
     this.addLayer(features, this)
-    callback && callback(data, markersLayer)
+    cb && cb(data, markersLayer)
     return data
   }
   /**
    * 绘制线
    * @param {Array} lineOptsArr 线配置集合
-   * @param {Function} callback
+   * @param {Function} cb
    */
-  addLine (lineOptsArr, callback) {
+  addLine (lineOptsArr, cb) {
     const lineLayer = utils.lineString(lineOptsArr)
     const features = lineLayer.features
     this.addLayer(features, this)
-    callback && callback(lineLayer.data)
+    cb && cb(lineLayer.data)
     return lineLayer.data
   }
   // 获取地图中心点
-  getCenter (callback) {
+  getCenter (cb) {
     const center = this.map.getView().getCenter()
-    callback && callback(this.transProj(center))
+    cb && cb(this.transProj(center))
     return center
   }
-  getRequestUrl (callback) {
-    callback && callback(mapSrc)
+  getRequestUrl (cb) {
+    cb && cb(mapSrc)
     return mapSrc
   }
   // 获取当前层级
-  getZoom (callback) {
+  getZoom (cb) {
     const zoom = this.map.getView().getZoom()
-    callback && callback({
+    cb && cb({
       zoom
     })
     return Math.round(zoom * 10) / 10
@@ -223,7 +225,6 @@ export default class Ol {
   }
   // 设置地图中心点
   setMapCenter (center) {
-
     if (!center instanceof Array) throw Error('参数格式错误，应该为Array')
     const lat = center[1] | 0
     const lon = center[0] | 0
@@ -248,9 +249,9 @@ export default class Ol {
       }
     }
   }
-  // calculateGroup (opts = {}, callback) {
+  // calculateGroup (opts = {}, cb) {
   //   const ids = calculateGroup(opts, this)
-  //   callback && callback(ids)
+  //   cb && cb(ids)
   // }
   // 清除覆盖物及气泡
   clear () {
@@ -263,7 +264,7 @@ export default class Ol {
       console.log(error)
     }
   }
-  onCameraChange (callback) {
+  onCameraChange (cb) {
     const that = this
     this.map.on('moveend', function (evt) {
       const center = evt.map.getView().getCenter()
@@ -271,10 +272,10 @@ export default class Ol {
         center: that.transProj(center),
         zoom: that.getZoom()
       }
-      callback && callback(data)
+      cb && cb(data)
     })
   }
-  pointermove (callback) {
+  pointermove (cb) {
     this.map.on('pointermove', function (evt) {
       if (evt.dragging) {
         return
@@ -283,29 +284,31 @@ export default class Ol {
       const feature = this.forEachFeatureAtPixel(pixel, function (feature) {
         return feature
       })
-      callback && callback(evt, feature)
+      cb && cb(evt, feature)
     })
   }
   /**
-   * 自定义事件回调
+   * @deprecated 绑定自定义事件回调
    * @param {String} type 事件类型
-   * @param {Function} callback 
+   * @param {Function} cb 回调
    */
-  on (type, callback) {
-    if (typeof callback !== 'function') return
-    // 事件名称映射
-    const evtMap = {
-      markerClick: 'onMarkerClick',
-      markerLongClick: 'onMarkerLongClick',
-      markerDrag: 'onMarkerDragEnd'
+  on (type, cb) {
+    if (typeof cb !== 'function') return
+    // 触发change
+    if (type === 'change') {
+      this.onCameraChange(cb)
+    } else {
+      this._listen(type, cb)
     }
-    // 点位事件
-    if (evtMap[type]) {
-      _event[evtMap[type]] = callback
-      return
-    }
-    // change事件派发
-    this.onCameraChange(callback)
+  }
+  /**
+   * @deprecated 解除事件绑定
+   * @param {*} type 事件类型
+   * @param {*} cb 回调函数
+   */
+  removeEvent (type, cb) {
+    if (!type || !cb) return
+    this._remove(type, cb)
   }
   getDistanceFromPixel (num = pixelNum) {
     const point1 = this.map.getView().getCenter()

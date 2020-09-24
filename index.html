@@ -91,15 +91,17 @@
       },
       // 添加点线圆
       marker() {
-        console.log(markers)
+        markers[0].id = '123'
         const data = this.olmap.addMarker(markers)
-        this.olmap.addLine(lineData)
-        this.olmap.addCircle({
+        // console.log(data)
+        const lineIds = this.olmap.addLine(lineData)
+
+        const circleIds = this.olmap.addCircle({
           center: [116.39786526, 39.92421163],
           radius: 100
         })
         this.map.popId = data[data.length - 1]
-
+        console.log(data, lineIds, circleIds)
       },
       // 添加2组多边形
       polygon() {
@@ -371,10 +373,18 @@
       evt() {
         let oldFeature = null
         this.olmap.on('markerClick', data => {
+          console.log('点位被点击', data)
+        })
+        const cb = data => {
           if (data.olId === this.map.popId) {
-            alert('我被点击了,点击后删除点位')
-            this.olmap.removeFeature([data.olId])
+            console.log('我被点击了,并且解除这个事件的绑定')
+            // this.olmap.removeFeature([data.olId])
+            this.olmap.removeEvent('markerClick', cb)
           }
+        }
+        this.olmap.on('markerClick', cb)
+        this.olmap.on('markerDrag', data => {
+          console.log('拖拽完成：', data)
         })
         this.olmap.pointermove(function (evt, feature) {
           if (feature) {

@@ -6,7 +6,7 @@
 
 默认传入和返回的经纬度都是 EPSG:4326 坐标体系，如使用其他的坐标系需要经过转换，地图内部使用的 EPSG:3857 坐标系。<br/>**代码中所有瓦片数据均来源于网络，仅用做学习之用，如有侵权可联系 44021987@qq.com 删除，谢谢！**
 
-## 使用
+## 1、使用
 
 - 浏览器直接引入 dist 目录下 index.js
 - npm 安装
@@ -56,7 +56,7 @@ const olmaps =new Olmaps({
 | doubleClickZoom | 是否双击放大         | Boolean | false                                                                                        |
 | scaleLine       | 比例尺显示           | Boolean | true                                                                                         |
 
-## 1、Methods
+## 2、api
 
 ### setMapCenter
 
@@ -172,7 +172,7 @@ const res = transformLonLat([116.39786526, 39.92421163])
 
 ### transProj
 
-坐标系互转，默认从 2857 转 4326
+坐标系互转，默认从 3857 转 4326
 
 ```js
 const res = transProj(
@@ -194,9 +194,9 @@ const res = transProj(
 
 获取视野范围 4 个角的经纬度
 
-## 2、绘制覆盖物
-
 ### addMarker 绘制点标记
+
+#### @demo
 
 ```
 const markerInfo = olmaps.addMarker([
@@ -205,24 +205,23 @@ const markerInfo = olmaps.addMarker([
     "longitude":"116.39786526",
     "name":"单杆-1",
     "type": "",
-    "drag": true
+    "drag": true,
+    id: '1'
   },
   {
     "latitude":"39.92629634",
     "longitude":"116.39593675",
     "name":"单杆-10",
-    "type": ""
+    "type": "",
+    id: '2'
   }
 ])
+```
 
-// markerInfo
-{
-  "latitude":"28.174730774025367",
-  "longitude":"112.9790183901787",
-  "name":"单杆-10",
-  "type": "",
-  olId: 'uuid'
-}
+#### @params
+
+```
+@params {Array} 需要添加的点位集合
 ```
 
 | variable  | description               | type    | default |
@@ -236,7 +235,15 @@ const markerInfo = olmaps.addMarker([
 | text      | 文字其他属性参考 ol6 文档 | Object  |         |
 | icon      | 图标其他属性参考 ol6 文档 | Object  |         |
 
+#### @returns
+
+```
+@returns {Array} ids 返回唯一标识id集合
+```
+
 ### addLine 绘制线集合
+
+#### @demo
 
 ```js
 // 入参
@@ -271,43 +278,10 @@ const info = olmaps.addLine([
     showDistance: true,
     type: 'line',
   },
-])[
-  // result -> info
-  ({
-    data: [
-      ['116.39786526', '39.92421163'],
-      ['116.39593675', '39.92629634'],
-    ],
-    color: 'green',
-    textColor: 'green',
-    showDistance: true,
-    type: 'dash',
-    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b',
-  },
-  {
-    data: [
-      ['116.39593675', '39.92629634'],
-      ['116.39670252', '39.92647015'],
-    ],
-    color: 'red',
-    textColor: 'green',
-    showDistance: false,
-    type: 'line',
-    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b',
-  },
-  {
-    data: [
-      ['116.39670252', '39.92647015'],
-      ['116.39473110', '39.92293218'],
-    ],
-    color: 'green',
-    textColor: 'red',
-    showDistance: true,
-    type: 'line',
-    olId: 'd1afa649-6b73-4fad-ab49-801e256da11b',
-  })
-]
+])
 ```
+
+#### @params
 
 | variable     | type           | description         | default |
 | ------------ | -------------- | ------------------- | ------- |
@@ -318,17 +292,25 @@ const info = olmaps.addLine([
 | showDistance | Boolean        | 是否显示距离        | true    |
 | id           | String         | 点位标识            |
 
-### addCircle 绘制圆形
-
-一次只绘制一个
+#### @returns
 
 ```
+@returns {Array} ids 返回唯一标识id集合
+```
+
+
+
+### addCircle 绘制圆形
+
+> 一次只绘制一个
+
+```js
 const info = olmaps.addCircle({
   center: [116.39786526, 39.92421163],
   radius: 100
 })
 
-// return -> info
+// @returns {array} ids
 ["689dc349-2bfa-4eed-8173-82cc2c76cacb"]
 ```
 
@@ -346,7 +328,9 @@ const info = olmaps.addCircle({
 
 ### addPolygon 绘制多边形
 
-- 绘制多边形(一次只绘制一个)
+> 绘制多边形(一次只绘制一个)
+
+#### @demo
 
 ```js
 const info = olmaps.addPolygon({
@@ -358,11 +342,13 @@ const info = olmaps.addPolygon({
   ],
   id: '887777',
   fill: 'yellow',
-})[
-  // return
-  '689dc349-2bfa-4eed-8173-82cc2c76cacb'
-]
+})
+
+// @returns {array} ids
+['689dc349-2bfa-4eed-8173-82cc2c76cacb']
 ```
+
+#### @params
 
 | variable    | description               | type   | default           |
 | ----------- | ------------------------- | ------ | ----------------- |
@@ -377,9 +363,11 @@ const info = olmaps.addPolygon({
 
 ### addMultiPolygon 描点（描边）
 
-- 特别注意这里需要传入 data 的数组格式
+> 特别注意这里需要传入 data 的数组格式
 
-```
+#### @demo
+
+```js
 const info = olmaps.addMultiPolygon({
   data: [
     [
@@ -392,7 +380,12 @@ const info = olmaps.addMultiPolygon({
   name: '',
   id: ''
 })
+
+// @returns {array} ids
+['689dc349-2bfa-4eed-8173-82cc2c76cacb']
 ```
+
+#### @params
 
 | opts | type   | description |
 | ---- | ------ | ----------- |

@@ -11,8 +11,7 @@ import { endDI, lineDI } from '../config'
  */
 function isNeedclickCallback (feature) {
   const id = feature.get('id')
-  if (new RegExp(endDI).test(id)) return false
-  return true
+  return !new RegExp(endDI).test(id)
 }
 
 // 计算拖拽距离
@@ -44,13 +43,13 @@ function isIconType (feature, coordinates, context) {
   const olId = feature.get('id')
   const isDrag = feature.get('drag')
   const isIcon = feature.get('type') === 'icon'
-  // 如果s是icon类型并且不能被拖拽，则绑定长按事件
+  // 如果是icon类型并且不能被拖拽，则绑定长按事件
   if (isIcon && !isDrag) {
     context.longClickEvt = setTimeout(() => {
-      context._event.onMarkerLongClick && context._event.onMarkerLongClick({
-        coordinates: transProj(coordinates),
-        olId
-      })
+      const { markerLongClick = [] } = context._event
+      if (markerLongClick.length) {
+        markerLongClick.forEach(cb => cb({ coordinates: transProj(coordinates), olId }))
+      }
       context.longClickEvt = null
     }, context.longClickTime)
   }
@@ -73,17 +72,18 @@ function bindMarkerClickDrag () {
     coordinates: transProj(point),
     olId
   }
+  const { markerDrag = [], markerClick = [] } = this._event
   // 如果被改变了触发拖拽事件
   if (isModified) {
     const data = {
-      iconData,
+      ...iconData,
       oldCoordinates: transProj(this.oldcoordinate_)
     }
-    this._event.onMarkerDragEnd && this._event.onMarkerDragEnd(data)
+    markerDrag.length && markerDrag.forEach(cb => cb(data))
   } else {
     if (Date.now() - this.time < this.longClickTime) {
       if (isNeedclickCallback(this.feature_)) {
-        this._event.onMarkerClick && this._event.onMarkerClick(iconData)
+        markerClick.length && markerClick.forEach(cb => cb(iconData))
       }
     }
   }
@@ -196,8 +196,8 @@ export const featureDrag = _event => {
 
   /**
    * @return {boolean} `false` to stop the drag sequence
-   * if feature's coordinates has been modified, Android's methods named onMarkerDragEnd will be triggered
-   * if it was not modified, Android's methods named onMarkerClick will be triggered
+   * if feature's coordinates has been modified, Android's methods named markerDrag will be triggered
+   * if it was not modified, Android's methods named markerClick will be triggered
    * init data
    */
   app.Drag.prototype.handleUpEvent = function (evt) {
